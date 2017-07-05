@@ -1,19 +1,22 @@
 use Mix.Config
 
+# Configuration for test environment
+config :ex_unit, capture_log: true
+
+
+# Configure your database
+config :report, Report.Repo,
+  pool: Ecto.Adapters.SQL.Sandbox,
+  database: {:system, "DB_NAME", "report_test"}
+
 # We don't run a server during test. If one is required,
 # you can enable the server option below.
 config :report, Report.Web.Endpoint,
   http: [port: 4001],
-  server: false
+  server: true
 
 # Print only warnings and errors during test
 config :logger, level: :warn
 
-# Configure your database
-config :report, Report.Repo,
-  adapter: Ecto.Adapters.Postgres,
-  username: "postgres",
-  password: "postgres",
-  database: "report_test",
-  hostname: "localhost",
-  pool: Ecto.Adapters.SQL.Sandbox
+# Run acceptance test in concurrent mode
+config :report, sql_sandbox: true

@@ -5,14 +5,13 @@ defmodule Report.Web.ConnCase do
 
   Such tests rely on `Phoenix.ConnTest` and also
   import other functionality to make it easier
-  to build common datastructures and query the data layer.
+  to build and query models.
 
   Finally, if the test case interacts with the database,
   it cannot be async. For this reason, every test runs
   inside a transaction which is reset at the beginning
   of the test unless the test case is marked as async.
   """
-
   use ExUnit.CaseTemplate
 
   using do
@@ -20,19 +19,27 @@ defmodule Report.Web.ConnCase do
       # Import conveniences for testing with connections
       use Phoenix.ConnTest
       import Report.Web.Router.Helpers
+      import Ecto
+      import Ecto.Changeset
+      import Ecto.Query
+      alias Report.Repo
 
       # The default endpoint for testing
       @endpoint Report.Web.Endpoint
     end
   end
 
-
   setup tags do
     :ok = Ecto.Adapters.SQL.Sandbox.checkout(Report.Repo)
+
     unless tags[:async] do
       Ecto.Adapters.SQL.Sandbox.mode(Report.Repo, {:shared, self()})
     end
-    {:ok, conn: Phoenix.ConnTest.build_conn()}
-  end
 
+    conn =
+      Phoenix.ConnTest.build_conn()
+      |> Plug.Conn.put_req_header("content-type", "application/json")
+
+    {:ok, conn: conn}
+  end
 end

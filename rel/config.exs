@@ -18,4 +18,3 @@ release :report do
     report: :permanent
   ]
 end
-
