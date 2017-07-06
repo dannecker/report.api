@@ -14,6 +14,7 @@ defmodule Report.Web.ErrorViewTest do
            %{errors: %{detail: "Internal server error"}}
   end
 
+  @tag :pending
   test "render any other" do
     assert render(Report.Web.ErrorView, "505.json", []) ==
            %{errors: %{detail: "Internal server error"}}

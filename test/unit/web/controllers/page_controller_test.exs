@@ -15,8 +15,7 @@ defmodule Report.Web.PageControllerTest do
       "data" => %{
         "page" => %{
           "detail" => "This is page."
-        },
-        "type" => "page"
+        }
       }
     } = conn |> response(200) |> Poison.decode!
   end

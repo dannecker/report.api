@@ -20,8 +20,7 @@ defmodule Report.Web.Controllers.PageAcceptanceTest do
       "data" => %{
         "page" => %{
           "detail" => "This is page."
-        },
-        "type" => "page"
+        }
       }
     } = body
   end

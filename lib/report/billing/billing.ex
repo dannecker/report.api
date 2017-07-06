@@ -1,5 +1,5 @@
 defmodule Report.Billing do
-  @defmodule """
+  @moduledoc """
     Ecto Schema for Billing table
   """
   use Ecto.Schema

@@ -1,4 +1,5 @@
 defmodule Report.Replica.Settlement do
+  @moduledoc false
   use Ecto.Schema
 
   @primary_key {:id, :binary_id, autogenerate: true}
