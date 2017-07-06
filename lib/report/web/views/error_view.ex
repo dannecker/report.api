@@ -1,4 +1,5 @@
 defmodule Report.Web.ErrorView do
+  @moduledoc false
   use Report.Web, :view
 
   def render("404.json", _assigns) do

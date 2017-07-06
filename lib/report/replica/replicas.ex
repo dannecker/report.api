@@ -1,5 +1,5 @@
 defmodule Report.Replica.Replicas do
-  @defmodule """
+  @moduledoc """
   Context module for working with Replica Schemas
   """
 end
