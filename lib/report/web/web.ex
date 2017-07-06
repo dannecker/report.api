@@ -1,6 +1,6 @@
 defmodule Report.Web do
   @moduledoc """
-  A module that keeps using definitions for controllers,
+  A module defining __using__ hooks for controllers,
   views and so on.
 
   This can be used in your application as:
@@ -18,7 +18,7 @@ defmodule Report.Web do
 
   def controller do
     quote do
-      use Phoenix.Controller, namespace: Report.Web
+      use Phoenix.Controller
       import Plug.Conn
       import Report.Web.Router.Helpers
     end
@@ -26,13 +26,15 @@ defmodule Report.Web do
 
   def view do
     quote do
-      use Phoenix.View, root: "lib/report/web/templates",
-                        namespace: Report.Web
-
       # Import convenience functions from controllers
-      import Phoenix.Controller, only: [get_csrf_token: 0, get_flash: 2, view_module: 1]
-
+      import Phoenix.View
+      import Phoenix.Controller, only: [view_module: 1]
       import Report.Web.Router.Helpers
+
+      @view_resource String.to_atom(Phoenix.Naming.resource_name(__MODULE__, "View"))
+
+      @doc "The resource name, as an atom, for this view"
+      def __resource__, do: @view_resource
     end
   end
 
@@ -41,12 +43,6 @@ defmodule Report.Web do
       use Phoenix.Router
       import Plug.Conn
       import Phoenix.Controller
-    end
-  end
-
-  def channel do
-    quote do
-      use Phoenix.Channel
     end
   end
 

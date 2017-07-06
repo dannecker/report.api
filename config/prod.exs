@@ -1,5 +1,31 @@
 use Mix.Config
 
+# Configuration for production environment.
+# It should read environment variables to follow 12 factor apps convention.
+
+# Do not print debug messages in production
+# and handle all other reports by Elixir Logger with JSON back-end
+# SASL reports turned off because of their verbosity.
+config :logger,
+  backends: [LoggerJSON],
+  level: :info,
+  # handle_sasl_reports: true,
+  handle_otp_reports: true
+
+# Sometimes you might want to improve production performance by stripping logger debug calls during compilation
+# config :logger,
+#   compile_time_purge_level: :info
+
+
+# Configure your database
+config :report, Report.Repo,
+  adapter: Ecto.Adapters.Postgres,
+  database: {:system, "DB_NAME"},
+  username: {:system, "DB_USER"},
+  password: {:system, "DB_PASSWORD"},
+  hostname: {:system, "DB_HOST"},
+  port: {:system, :integer, "DB_PORT"}
+
 # For production, we often load configuration from external
 # sources, such as your system environment. For this reason,
 # you won't find the :http configuration below, but set inside
@@ -15,18 +41,24 @@ use Mix.Config
 # which you typically run after static files are built.
 config :report, Report.Web.Endpoint,
   on_init: {Report.Web.Endpoint, :load_from_system_env, []},
-  url: [host: "example.com", port: 80],
-  cache_static_manifest: "priv/static/cache_manifest.json"
+  http: [port: {:system, "PORT", "80"}],
+  url:  [
+    host: {:system, "HOST", "localhost"},
+    port: {:system, "PORT", "80"},
+  ],
+  secret_key_base: {:system, "SECRET_KEY"},
+  debug_errors: false,
+  code_reloader: false
 
-# Do not print debug messages in production
-config :logger, level: :info
+# Do not log passwords, card data and tokens
+config :phoenix, :filter_parameters, ["password", "secret", "token", "password_confirmation", "card", "pan", "cvv"]
 
 # ## SSL Support
 #
 # To get SSL working, you will need to add the `https` key
 # to the previous section and set your `:url` port to 443:
 #
-#     config :report, Report.Web.Endpoint,
+#     config :sample2, Sample2.Web.Endpoint,
 #       ...
 #       url: [host: "example.com", port: 443],
 #       https: [:inet6,
@@ -41,7 +73,7 @@ config :logger, level: :info
 # We also recommend setting `force_ssl`, ensuring no data is
 # ever sent via http, always redirecting to https:
 #
-#     config :report, Report.Web.Endpoint,
+#     config :sample2, Sample2.Web.Endpoint,
 #       force_ssl: [hsts: true]
 #
 # Check `Plug.SSL` for all available options in `force_ssl`.
@@ -56,9 +88,6 @@ config :logger, level: :info
 # Alternatively, you can configure exactly which server to
 # start per endpoint:
 #
-#     config :report, Report.Web.Endpoint, server: true
+#     config :sample2, Sample2.Web.Endpoint, server: true
 #
-
-# Finally import the config/prod.secret.exs
-# which should be versioned separately.
-import_config "prod.secret.exs"
+config :phoenix, :serve_endpoints, true

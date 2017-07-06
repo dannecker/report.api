@@ -1,40 +1,27 @@
 defmodule Report.Web.Endpoint do
+  @moduledoc """
+  Phoenix Endpoint for report application.
+  """
   use Phoenix.Endpoint, otp_app: :report
 
-  socket "/socket", Report.Web.UserSocket
-
-  # Serve at "/" the static files from "priv/static" directory.
-  #
-  # You should set gzip to true if you are running phoenix.digest
-  # when deploying your static files in production.
-  plug Plug.Static,
-    at: "/", from: :report, gzip: false,
-    only: ~w(css fonts images js favicon.ico robots.txt)
-
-  # Code reloading can be explicitly enabled under the
-  # :code_reloader configuration of your endpoint.
-  if code_reloading? do
-    plug Phoenix.CodeReloader
+  # Allow acceptance tests to run in concurrent mode
+  if Application.get_env(:report, :sql_sandbox) do
+    plug Phoenix.Ecto.SQL.Sandbox
   end
 
   plug Plug.RequestId
+  plug EView.Plugs.Idempotency
   plug Plug.Logger
 
+  plug EView
+
   plug Plug.Parsers,
-    parsers: [:urlencoded, :multipart, :json],
-    pass: ["*/*"],
+    parsers: [:json],
+    pass: ["application/json"],
     json_decoder: Poison
 
   plug Plug.MethodOverride
   plug Plug.Head
-
-  # The session will be stored in the cookie and signed,
-  # this means its contents can be read but not tampered with.
-  # Set :encryption_salt if you would also like to encrypt it.
-  plug Plug.Session,
-    store: :cookie,
-    key: "_report_key",
-    signing_salt: "0MCMxlem"
 
   plug Report.Web.Router
 
@@ -46,7 +33,12 @@ defmodule Report.Web.Endpoint do
   and must return the updated configuration.
   """
   def load_from_system_env(config) do
-    port = System.get_env("PORT") || raise "expected the PORT environment variable to be set"
-    {:ok, Keyword.put(config, :http, [:inet6, port: port])}
+    config = Confex.process_env(config)
+
+    unless config[:secret_key_base] do
+      raise "Set SECRET_KEY environment variable!"
+    end
+
+    {:ok, config}
   end
 end
