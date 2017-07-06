@@ -5,7 +5,7 @@ defmodule Report.Repo.Migrations.CreateDeclarationsTable do
     create table(:declarations, primary_key: false) do
       add :id, :uuid, primary_key: true
       add :declaration_signed_id, :uuid, null: false
-      add :employee_id, :uuid, null: false
+      add :employee_id, references(:employees, type: :uuid, on_delete: :nothing)
       add :person_id, :uuid, null: false
       add :start_date, :utc_datetime, null: false
       add :end_date, :utc_datetime, null: false

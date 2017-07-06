@@ -16,11 +16,12 @@ defmodule Report.Replica.Employee do
     field :updated_by, Ecto.UUID
     field :inserted_by, Ecto.UUID
 
-    belongs_to :party, PRM.Parties.Party, type: Ecto.UUID
-    belongs_to :division, PRM.Entities.Division, type: Ecto.UUID
-    belongs_to :legal_entity, PRM.Entities.LegalEntity, type: Ecto.UUID
+    belongs_to :party, Report.Replica.Party, type: Ecto.UUID
+    belongs_to :division, Report.Replica.Division, type: Ecto.UUID
+    belongs_to :legal_entity, Report.Replica.LegalEntity, type: Ecto.UUID
 
-    has_one :doctor, PRM.Employees.EmployeeDoctor
+    has_one :doctor, Report.Replica.EmployeeDoctor
+    has_many :declarations, Report.Replica.Declaration
 
     timestamps(type: :utc_datetime)
   end
