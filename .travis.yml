@@ -70,6 +70,8 @@ script:
   # - "CONTAINER_HTTP_HOST=localhost CONTAINER_HTTP_PORT=4000 mix test test/acceptance"
 after_failure:
   - docker logs report --details --since 5h
+after_success:
+  - ./bin/ci/release/push-changes.sh
 # Also you can
 # - automatically build images and push them to Docker Hub;
 # - create new git tag with build version and GitHub release on it.
