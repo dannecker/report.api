@@ -71,6 +71,8 @@ script:
 after_failure:
   - docker logs report --details --since 5h
 after_success:
+  - rm -f erlang-19.3-nonroot.tar.bz2
+  - rm -f v1.4.4.zip
   - ./bin/ci/release/push-changes.sh
 # Also you can
 # - automatically build images and push them to Docker Hub;
