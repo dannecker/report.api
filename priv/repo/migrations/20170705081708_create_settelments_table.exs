@@ -11,6 +11,7 @@ defmodule Report.Repo.Migrations.CreateSettelmentsTable do
       add :mountain_group, :string, null: true
       add :type, :string, size: 50
       add :parent_settlement_id, references(:settlements, type: :uuid, on_delete: :nothing)
+      timestamps(type: :utc_datetime)
     end
   end
 end

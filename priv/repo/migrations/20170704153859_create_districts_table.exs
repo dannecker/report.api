@@ -6,6 +6,8 @@ defmodule Report.Repo.Migrations.CreateDistrictsTable do
       add :id, :uuid, primary_key: true
       add :region_id, :uuid, null: false
       add :name, :string, null: false
+      add :koatuu, :string, size: 10
+      timestamps()
     end
   end
 end
