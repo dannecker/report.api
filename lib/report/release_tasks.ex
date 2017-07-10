@@ -16,7 +16,7 @@ defmodule Report.ReleaseTasks do
   ]
 
   @apps [
-    :report
+    :report_api
   ]
 
   @repos [
@@ -26,7 +26,7 @@ defmodule Report.ReleaseTasks do
   def migrate! do
     IO.puts "Loading report.."
     # Load the code for report, but don't start it
-    :ok = Application.load(:report)
+    :ok = Application.load(:report_api)
 
     IO.puts "Starting dependencies.."
     # Start apps necessary for executing migrations
@@ -40,7 +40,7 @@ defmodule Report.ReleaseTasks do
     Enum.each(@apps, &run_migrations_for/1)
 
     # Run the seed script if it exists
-    seed_script = seed_path(:report)
+    seed_script = seed_path(:report_api)
     if File.exists?(seed_script) do
       IO.puts "Running seed script.."
       Code.eval_file(seed_script)

@@ -4,7 +4,7 @@ defmodule Report.Repo do
 
   More info: https://hexdocs.pm/ecto/Ecto.Repo.html
   """
-  use Ecto.Repo, otp_app: :report
+  use Ecto.Repo, otp_app: :report_api
 
   @doc """
   Dynamically loads the repository configuration from the environment variables.

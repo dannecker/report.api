@@ -10,11 +10,11 @@ use Mix.Config
 
 # You can configure for your application as:
 #
-#     config :report, key: :value
+#     config :report_api, key: :value
 #
 # And access this configuration in your application as:
 #
-#     Application.get_env(:report, :key)
+#     Application.get_env(:report_api, :key)
 #
 # Or configure a 3rd-party app:
 #
@@ -23,11 +23,11 @@ use Mix.Config
 # Or read environment variables in runtime (!) as:
 #
 #     :var_name, "${ENV_VAR_NAME}"
-config :report,
+config :report_api,
   ecto_repos: [Report.Repo]
 
 # Configure your database
-config :report, Report.Repo,
+config :report_api, Report.Repo,
   adapter: Ecto.Adapters.Postgres,
   database: {:system, "DB_NAME", "report_dev"},
   username: {:system, "DB_USER", "postgres"},
@@ -39,7 +39,7 @@ config :report, Report.Repo,
 
 # General application configuration
 # Configures the endpoint
-config :report, Report.Web.Endpoint,
+config :report_api, Report.Web.Endpoint,
   url: [host: "localhost"],
   secret_key_base: "U6jv7YneKVixSMz0h4Z/W1P5gifuhS0rekLu2tuZRsZmE856L71BcjX18tNzZmVu",
   render_errors: [view: EView.Views.PhoenixError, accepts: ~w(json)]

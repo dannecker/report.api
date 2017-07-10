@@ -2,10 +2,10 @@ defmodule Report.Web.Endpoint do
   @moduledoc """
   Phoenix Endpoint for report application.
   """
-  use Phoenix.Endpoint, otp_app: :report
+  use Phoenix.Endpoint, otp_app: :report_api
 
   # Allow acceptance tests to run in concurrent mode
-  if Application.get_env(:report, :sql_sandbox) do
+  if Application.get_env(:report_api, :sql_sandbox) do
     plug Phoenix.Ecto.SQL.Sandbox
   end
 

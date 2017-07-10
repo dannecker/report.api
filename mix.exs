@@ -4,7 +4,7 @@ defmodule Report.Mixfile do
   @version "0.1.0"
 
   def project do
-    [app: :report,
+    [app: :report_api,
      description: "Add description to your package.",
      package: package(),
      version: @version,
