@@ -12,8 +12,8 @@ environment :default do
   ]
 end
 
-release :report do
-  set version: current_version(:report)
+release :report_api do
+  set version: current_version(:report_api)
   set applications: [
     report: :permanent
   ]

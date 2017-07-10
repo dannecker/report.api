@@ -23,7 +23,7 @@ env:
     # Main branch that will build new releases by-default
     - TRUNK_BRANCH="master"
     # Docker Hub token
-    - DOCKER_HUB_ACCOUNT=place_your_account_name_here
+    - DOCKER_HUB_ACCOUNT=nebo15
     - secure: "FRNQYonO0C7gnQKmjDyqEE0kn+41GBWmasny/JjnKp3QL4cvANlDAXZvFMyE/y8okGnHqzLYTUHHlO3vUCVISDFk4kx3DWfYegtNR27H0a+ESRWb5Hl3pH9q9kJv/K17+7baAi33mlvSTenDgRWlINyblVmPWpUVyAOSIKzy96xXVh9KafgHNKZwseg5HqypaYW1Joc01NxBgP2Rs9A6iIBXhyTPIhDXt/rugJv4I7JWSQB+iQ0W4vnjmo0dWjrz643zEAvmAy6qpv1HiBNM5xk7Sd+SHKXyNnyfDnLRApWWJSMYqA+qSXZPlanziD2URc663blkmxH2M4qVaengiwWwdakPk4d66Gv1EDpbOQ48TV5WyUXeu0T1XzG7hNYPp+6AGgoAxihNEgs1GBlpjBe3YIf3EGgiW7feJ/B0C9WVHxS7Nhrr9MCMtOw/CHICqM4d3PIY4e+elsb6/ceiU/ZNW5YWsQoCSTur1XCzNjGeXzXpXTpQ8ZB8E1F6RYTEDaNp3YYAlUHdoel3xKa640AI9DIQ/aKlB+UTaIbkClWKlZrapfi9wgCs1Rm0oSD5zRS/47JYXsAvQXpWbqITxH2FbsQGH61wFDL+UQS0370DkfYdn/T1Q+acUlxdPYVM66zximviWQXqURV4XQfTghu0JNxpeFQWhN6ND79/zBU="
     - secure: "ueO83ich36kvYy/oKUKxtL01eT/CcVZKJgdN78ItmS11QCnMgXtV/audjeJYS/D0XdORyLWCN/I7R760mVRtpMKbvSjDV2Iw42Ng012vJluH03t2B1bjeGQBcDB2suRciNmk+C680rQuqZJMwOmazu+q6gXxj3bw63G6DwduLkkxz4yqcJXZE+w/HZebMWSuc8lIcOTOOFu+WItvIdKjOcRk/5bbrgohMGdURjrhKjNh2s0G7Fa4E4IAq6N5eEaqm4drH5kcKSJlJmtbnE9EuKwIM+Fywe0Z6rB15/arlMpS4XI23ddH6K2PxImYvy5WPWGhOw+H+mC2o7W/QUB0cWGnz2upa+IcHYcucHLUdG30jr0i2HxR1o5l+7FtgdrFJzB979LyU5j8iVbKtjFXem+UsqPcOMgPY1kHK6m5sK2jRuSl2wOAWdYcO8NBVccQklQj9NgWB2PrTu3/vooEZhbKA7Mcvsdc590VryrQB6Xq1LKFwTWjwckCX/zfKlcIMuMXByuhXI/MHUlU6j6aE8tbWJ8n9vMCuC1qgEeIx4mzFp7xp/EBooRb5Ffl48tdxPCj09aPtRsnvjwiVocOHj+nOdAInQXpWVpF+Czp5q/g+qe46XS14yIck5J0ZWe7VeWKeOenBtoEkJd48FXzpyBOvlY1rpRJAf0TKevY+9s="
 branches:
@@ -31,6 +31,8 @@ branches:
   except:
     - /^[0-9]*\.[0-9]*\.[0-9]*/
 before_install:
+  - rm -f erlang-19.3-nonroot.tar.bz2
+  - rm -f v1.4.4.zip
   # Expose MQ and DB to Docker container
   - sudo ./bin/ci/init-db.sh
 before_script:
@@ -63,13 +65,15 @@ script:
   - RUNNING_CONTAINERS=`docker ps | wc -l`;
     if [ "${RUNNING_CONTAINERS//[[:space:]]/}" == "1" ]; then
       echo "[E] Container is not started\!";
-      docker logs report --details --since 5h;
+      docker logs report_api --details --since 5h;
       exit 1;
     fi;
   # Run acceptance tests on Docker container
   # - "CONTAINER_HTTP_HOST=localhost CONTAINER_HTTP_PORT=4000 mix test test/acceptance"
 after_failure:
-  - docker logs report --details --since 5h
+  - docker logs report_api --details --since 5h
+after_success:
+  - ./bin/ci/release/push-changes.sh
 # Also you can
 # - automatically build images and push them to Docker Hub;
 # - create new git tag with build version and GitHub release on it.

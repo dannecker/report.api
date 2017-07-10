@@ -1,7 +1,7 @@
 defmodule Report.Web.Controllers.PageAcceptanceTest do
   use EView.AcceptanceCase,
     async: true,
-    otp_app: :report,
+    otp_app: :report_api,
     endpoint: Report.Web.Endpoint,
     repo: Report.Repo,
     headers: [{"content-type", "application/json"}]

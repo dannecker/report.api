@@ -9,7 +9,7 @@ use Mix.Config
 # The watchers configuration can be used to run external
 # watchers to your application. For example, we use it
 # with brunch.io to recompile .js and .css sources.
-config :report, Report.Web.Endpoint,
+config :report_api, Report.Web.Endpoint,
   http: [port: 4000],
   debug_errors: true,
   code_reloader: true,
@@ -23,7 +23,7 @@ config :logger, :console, format: "[$level] $message\n"
 # in production as building large stacktraces may be expensive.
 config :phoenix, :stacktrace_depth, 20
 
-config :report, Report.Repo,
+config :report_api, Report.Repo,
   adapter: Ecto.Adapters.Postgres,
   database: {:system, "DB_NAME", "report_dev"},
   username: {:system, "DB_USER", "postgres"},

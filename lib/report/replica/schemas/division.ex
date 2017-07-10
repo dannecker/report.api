@@ -15,7 +15,7 @@ defmodule Report.Replica.Division do
     field :status, :string, null: false
     field :is_active, :boolean, default: false
     field :location, Geo.Geometry
-    belongs_to :legal_entity, PRM.Entities.LegalEntity, type: Ecto.UUID
+    belongs_to :legal_entity, Report.Replica.LegalEntity, type: Ecto.UUID
 
     timestamps()
   end
