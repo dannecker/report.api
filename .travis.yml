@@ -65,13 +65,13 @@ script:
   - RUNNING_CONTAINERS=`docker ps | wc -l`;
     if [ "${RUNNING_CONTAINERS//[[:space:]]/}" == "1" ]; then
       echo "[E] Container is not started\!";
-      docker logs report --details --since 5h;
+      docker logs report_api --details --since 5h;
       exit 1;
     fi;
   # Run acceptance tests on Docker container
   # - "CONTAINER_HTTP_HOST=localhost CONTAINER_HTTP_PORT=4000 mix test test/acceptance"
 after_failure:
-  - docker logs report --details --since 5h
+  - docker logs report_api --details --since 5h
 after_success:
   - ./bin/ci/release/push-changes.sh
 # Also you can
