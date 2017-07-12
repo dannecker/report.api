@@ -20,10 +20,11 @@ defmodule Report.Replica.LegalEntity do
     field :type, :string
     field :inserted_by, Ecto.UUID
     field :updated_by, Ecto.UUID
-    field :capitation_contract_id, :id
     field :created_by_mis_client_id, Ecto.UUID
+    field :mis_verified, :string, default: "NOT_VERIFIED"
+    field :nhs_verified, :boolean, default: false
 
-    has_one :medical_service_provider, {"medical_service_providers", PRM.Entities.MSP}, on_replace: :delete
+    has_one :medical_service_provider, {"medical_service_providers", Report.Replica.MSP}, on_replace: :delete
 
     timestamps()
   end

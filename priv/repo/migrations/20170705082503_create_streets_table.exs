@@ -4,15 +4,15 @@ defmodule Report.Repo.Migrations.CreateStreetsTable do
   def change do
     create table(:streets, primary_key: false) do
       add :id, :uuid, primary_key: true
-      add :district_id, references(:districts, type: :uuid, on_delete: :nothing)
-      add :region_id, references(:regions, type: :uuid, on_delete: :nothing)
-      add :settlement_id, references(:settlements, type: :uuid, on_delete: :nothing)
+      add :district_id, :uuid
+      add :region_id, :uuid
+      add :settlement_id, :uuid
       add :street_type, :string
       add :street_name, :string
       add :street_number, :string
       add :postal_code, :string
       add :numbers, :map
-      timestamps()
+      timestamps(type: :utc_datetime)
     end
   end
 end

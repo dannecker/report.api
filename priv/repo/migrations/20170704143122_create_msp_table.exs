@@ -5,9 +5,11 @@ defmodule Report.Repo.Migrations.CreateMspTable do
     create table(:medical_service_providers, primary_key: false) do
       add :id, :uuid, primary_key: true
       add :accreditation, :map, null: true
-      add :licenses, :map
-      add :legal_entity_id, references(:legal_entities, type: :uuid, on_delete: :nothing)
+      add :licenses, :map, null: true
+      add :legal_entity_id, :uuid
       timestamps(type: :utc_datetime)
     end
+
+    create index(:medical_service_providers, [:legal_entity_id])
   end
 end

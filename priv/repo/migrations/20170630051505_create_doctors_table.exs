@@ -8,7 +8,7 @@ defmodule Report.Repo.Migrations.CreateDoctorsTable do
       add :qualifications, :map
       add :specialities, :map, null: false
       add :science_degree, :map
-      add :employee_id, references(:employees, type: :uuid, on_delete: :nothing)
+      add :employee_id, :uuid
 
       timestamps()
     end

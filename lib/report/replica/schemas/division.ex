@@ -17,6 +17,6 @@ defmodule Report.Replica.Division do
     field :location, Geo.Geometry
     belongs_to :legal_entity, Report.Replica.LegalEntity, type: Ecto.UUID
 
-    timestamps()
+    timestamps(type: :utc_datetime)
   end
 end

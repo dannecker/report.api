@@ -20,8 +20,9 @@ defmodule Report.Repo.Migrations.CreateLegalEntities do
       add :inserted_by, :uuid, null: false
       add :updated_by, :uuid, null: false
       add :created_by_mis_client_id, :uuid
-
-      timestamps()
+      add :mis_verified, :string, null: false, default: "NOT_VERIFIED"
+      add :nhs_verified, :boolean, null: false, default: false
+      timestamps(type: :utc_datetime)
     end
   end
 end

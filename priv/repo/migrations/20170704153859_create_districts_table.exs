@@ -7,7 +7,7 @@ defmodule Report.Repo.Migrations.CreateDistrictsTable do
       add :region_id, :uuid, null: false
       add :name, :string, null: false
       add :koatuu, :string, size: 10
-      timestamps()
+      timestamps(type: :utc_datetime)
     end
   end
 end
