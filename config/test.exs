@@ -3,8 +3,6 @@ use Mix.Config
 # Configuration for test environment
 config :ex_unit, capture_log: true
 
-config :report_api, :environment, :test
-
 # Configure your database
 config :report_api, Report.Repo,
   pool: Ecto.Adapters.SQL.Sandbox,

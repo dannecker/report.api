@@ -15,8 +15,6 @@ config :logger,
 # Sometimes you might want to improve production performance by stripping logger debug calls during compilation
 # config :logger,
 #   compile_time_purge_level: :info
-config :report_api, :environment, :prod
-
 config :report_api, :pg_logical_node,
   dsn: {:system, "NODE_DSN"},
   mpi_dsn: {:system, "MPI_DSN"},
