@@ -13,9 +13,10 @@ defmodule Report.Repo.Migrations.CreateDevisionsTable do
       add :email, :string
       add :status, :string, null: false
       add :is_active, :boolean, default: false, null: false
-      add :legal_entity_id, references(:legal_entities, type: :uuid, on_delete: :nothing)
+      add :legal_entity_id, :uuid
       add :location, :geometry
-      timestamps()
+      timestamps(type: :utc_datetime)
     end
+    create index(:divisions, [:legal_entity_id])
   end
 end

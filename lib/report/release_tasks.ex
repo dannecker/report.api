@@ -7,6 +7,7 @@ defmodule Report.ReleaseTasks do
       report/bin/report command Elixir.Report.ReleaseTasks migrate!
   """
   alias Ecto.Migrator
+  alias Ecto.Migration.Runner
 
   @start_apps [
     :logger,
@@ -64,4 +65,27 @@ defmodule Report.ReleaseTasks do
 
   defp seed_path(app),
     do: Path.join([priv_dir(app), "repo", "seeds.exs"])
+
+  def setup_pg_logical! do
+    pg_logical = Confex.get(:report_api, :pg_logical_node)
+    Runner.execute "SELECT pglogical.create_node(
+    node_name := ‘subscriber’,
+    dsn := ‘#{pg_logical[:dsn]}’);"
+
+    Runner.execute "SELECT pglogical.create_subscription(
+    subscription_name := ‘subscription_mpi’,
+    provider_dsn := ‘#{pg_logical[:mpi_dsn]}’);"
+
+    Runner.execute "SELECT pglogical.create_subscription(
+    subscription_name := ‘subscription_prm’,
+    provider_dsn := ‘#{pg_logical[:prm_dsn]}’);"
+
+    Runner.execute "SELECT pglogical.create_subscription(
+    subscription_name := ‘subscription_uaddresses’,
+    provider_dsn := ‘#{pg_logical[:uaddresses_dsn]}’);"
+
+    Runner.execute "SELECT pglogical.create_subscription(
+    subscription_name := ‘subscription_ops’,
+    provider_dsn := ‘#{pg_logical[:ops_dsn]}’);"
+  end
 end

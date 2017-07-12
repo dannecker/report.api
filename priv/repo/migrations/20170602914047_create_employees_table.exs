@@ -13,9 +13,9 @@ defmodule Report.Repo.Migrations.CreateEmployeesTable do
       add :start_date, :date, null: false
       add :end_date, :date
       add :status_reason, :string
-      add :legal_entity_id, references(:legal_entities, type: :uuid, on_delete: :nothing)
-      add :division_id, references(:divisions, type: :uuid, on_delete: :nothing)
-      add :party_id, references(:parties, type: :uuid, on_delete: :nothing)
+      add :legal_entity_id, :uuid
+      add :division_id, :uuid
+      add :party_id, :uuid
 
       timestamps(type: :utc_datetime)
     end
