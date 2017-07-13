@@ -6,6 +6,7 @@ defmodule Report.Factory do
   alias Report.Replica.Person
   alias Report.Replica.LegalEntity
   alias Report.Replica.MSP
+  alias Report.Billing
 
   def declaration_factory do
     start_date = Faker.NaiveDateTime.forward(1)
@@ -14,7 +15,7 @@ defmodule Report.Factory do
       declaration_signed_id: Ecto.UUID.generate,
       start_date: start_date,
       end_date: end_date,
-      status: "",
+      status: "active",
       signed_at: start_date,
       created_by: Ecto.UUID.generate,
       updated_by: Ecto.UUID.generate,
@@ -100,5 +101,12 @@ defmodule Report.Factory do
     insert(:legal_entity, medical_service_provider: msp)
   end
 
-  def declaration_with_person
+  def billing_factory do
+    declaration = make_declaration_with_all()
+    %Billing{
+      billing_date: Faker.Date.forward(-30),
+      declaration_id: declaration.id,
+      legal_entity_id: declaration.legal_entity_id
+    }
+  end
 end
