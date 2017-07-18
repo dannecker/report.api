@@ -24,6 +24,10 @@ defmodule Report.Web.Router do
   scope "/", Report.Web do
     pipe_through :api
 
+    scope "/reports" do
+      get "/stats", StatsController, :index
+    end
+
     get "/page", PageController, :index
   end
 end
