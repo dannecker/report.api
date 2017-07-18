@@ -16,6 +16,13 @@ scope | enum('') | not null
 division_id | uuid | not null
 legal_entity_id | uuid | not null
 
+[declarations_status_hstr]
+id | uuid | not null
+declaration_id | uuid | not null
+actor_id | uuid | not null
+status | enum('') | not null
+inserted_at | timestamp | not null
+
 [divisions]
 id | uuid | not null
 legal_entity_id | uuid | not null
@@ -159,6 +166,7 @@ employees *--1 divisions
 employees 1--? employee_doctors
 medical_service_providers 1--1 legal_entities
 parties 1--? doctors
+declarations 1--* declarations_status_hstr
 
 
 
