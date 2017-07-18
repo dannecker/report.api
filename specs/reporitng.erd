@@ -143,6 +143,11 @@ red_msp_id | uuid | not null
 mountain_group | enum('')
 age_group | enum('')
 
+[declarations_status_hstr]
+id | integer | not null
+declaration_id | UUID | not null
+status | enum('') | not null
+inserted_at | timestamp | not null
 
 
 employees 1--* declarations
