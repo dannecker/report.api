@@ -6,6 +6,7 @@ defmodule Report.Factory do
   alias Report.Replica.Person
   alias Report.Replica.LegalEntity
   alias Report.Replica.MSP
+  alias Report.Replica.Division
   alias Report.Billing
 
   def declaration_factory do
@@ -20,8 +21,7 @@ defmodule Report.Factory do
       created_by: Ecto.UUID.generate,
       updated_by: Ecto.UUID.generate,
       is_active: true,
-      scope: "",
-      division_id: Ecto.UUID.generate,
+      scope: ""
     }
   end
 
@@ -43,7 +43,16 @@ defmodule Report.Factory do
   end
 
   defp declaration_with_legal_entity(%Declaration{} = declaration) do
-    %{declaration | legal_entity_id: insert(:legal_entity).id}
+    division =
+      :division
+      |> build()
+      |> division_with_legal_entity
+      |> insert()
+    %{declaration | legal_entity_id: division.legal_entity_id, division_id: division.id}
+  end
+
+  defp division_with_legal_entity(%Division{} = divison) do
+    %{divison | legal_entity_id: insert(:legal_entity).id}
   end
 
   def employee_factory do
@@ -60,6 +69,26 @@ defmodule Report.Factory do
       updated_by: Ecto.UUID.generate,
       status: "active",
       is_active: true
+    }
+  end
+
+  def division_factory do
+    bool_list = ["true", "false"]
+    %Division{
+      email: sequence(:email, &"division-#{&1}@example.com"),
+      name: Faker.Pokemon.name,
+      status: "ACTIVE",
+      is_active: true,
+      type: "clinic",
+      addresses: [%{"zip": "02090", "area": "ЛЬВІВСЬКА",
+                   "type": "REGISTRATION", "region": "ПУСТОМИТІВСЬКИЙ",
+                   "street": "вул. Ніжинська", "country": "UA",
+                   "building": "15", "apartment": "23",
+                   "settlement": "СОРОКИ-ЛЬВІВСЬКІ", "street_type": "STREET",
+                   "settlement_id": "707dbc55-cb6b-4aaa-97c1-2a1e03476100",
+                   "settlement_type": "CITY"}],
+      phones: [%{"type": "MOBILE", "number": "+380503410870"}],
+      mountain_group: Enum.at(bool_list, :rand.uniform(2) - 1)
     }
   end
 

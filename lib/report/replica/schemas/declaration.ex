@@ -14,7 +14,7 @@ defmodule Report.Replica.Declaration do
     field :updated_by, Ecto.UUID
     field :is_active, :boolean, default: false
     field :scope, :string
-    field :division_id, Ecto.UUID
+    belongs_to :division, Report.Replica.Division, type: Ecto.UUID
     belongs_to :person, Report.Replica.Person, type: Ecto.UUID
     belongs_to :legal_entity, Report.Replica.LegalEntity, type: Ecto.UUID
     timestamps(type: :utc_datetime)

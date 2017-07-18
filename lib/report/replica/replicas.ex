@@ -7,14 +7,16 @@ defmodule Report.Replica.Replicas do
   alias Report.Repo
 
   def list_declarations do
-    Repo.all(declaration_query())
+    declaration_query()
+    |> preload_declaration_assoc()
+    |> Repo.all
   end
 
   def stream_declarations_beetween(from, to) do
     declaration_query()
-    |> where_beetween(from, to)
+    # |> where_beetween(from, to)
     |> preload_declaration_assoc()
-    |> Repo.stream(timeout: :infinity)
+    |> Repo.stream(timeout: 120_000_000)
   end
 
   def get_oldest_declaration_date do
@@ -42,7 +44,10 @@ defmodule Report.Replica.Replicas do
 
   defp preload_declaration_assoc(query) do
     query
-    |> preload(:person)
-    |> preload(:legal_entity)
+    |> join(:left, [declaration], person in assoc(declaration, :person))
+    |> join(:left, [declaration], legal_entity in assoc(declaration, :legal_entity))
+    |> join(:left, [declaration], division in assoc(declaration, :division))
+    |> preload([declaration, person, legal_entity, division],
+               [person: person, legal_entity: legal_entity, division: division])
   end
 end
