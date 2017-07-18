@@ -16,6 +16,12 @@ scope | enum('') | not null
 division_id | uuid | not null
 legal_entity_id | uuid | not null
 
+[declarations_status_hstr]
+id | integer | not null
+declaration_id | UUID | not null
+status | enum('') | not null
+inserted_at | timestamp | not null
+
 [divisions]
 id | uuid | not null
 legal_entity_id | uuid | not null
@@ -143,12 +149,6 @@ red_msp_id | uuid | not null
 mountain_group | enum('')
 age_group | enum('')
 
-[declarations_status_hstr]
-id | integer | not null
-declaration_id | UUID | not null
-status | enum('') | not null
-inserted_at | timestamp | not null
-
 
 employees 1--* declarations
 divisions *--1 legal_entities
@@ -159,6 +159,7 @@ employees *--1 divisions
 employees 1--? employee_doctors
 medical_service_providers 1--1 legal_entities
 parties 1--? doctors
+declarations 1--* declarations_status_hstr
 
 
 
