@@ -1,7 +1,9 @@
 {
   "skip_files": [
     "test/*",
-    "lib/report/release_tasks.ex"
+    "lib/report/release_tasks.ex",
+    "lib/report/replica/schemas/*",
+    "deps/*"
   ],
   "custom_stop_words": [
     "field",

@@ -6,12 +6,12 @@ defmodule Report.Replica.Division do
   @primary_key {:id, :binary_id, autogenerate: true}
   schema "divisions" do
     field :email, :string
-    field :name, :string
-    field :addresses, {:array, :map}
+    field :name, :string, null: false
+    field :addresses, {:array, :map}, null: false
     field :external_id, :string
-    field :phones, {:array, :map}
+    field :phones, {:array, :map}, null: false
     field :mountain_group, :string
-    field :type, :string
+    field :type, :string, null: false
     field :status, :string, null: false
     field :is_active, :boolean, default: false
     field :location, Geo.Geometry

@@ -6,11 +6,12 @@ defmodule Report.Billing do
 
   @primary_key {:id, :binary_id, autogenerate: true}
   schema "billings" do
-    field :billing_date, :date, null: false
+    field :billing_date, Timex.Ecto.Date, null: false, default: Timex.today()
     belongs_to :declaration, Report.Replica.Declaration, type: Ecto.UUID
-    belongs_to :legal_enity, Report.Replica.LegalEnity, type: Ecto.UUID
+    belongs_to :legal_entity, Report.Replica.LegalEntity, type: Ecto.UUID
+    belongs_to :division, Report.Replica.Division, type: Ecto.UUID
     field :mountain_group, :string
-    field :age_group, :string
+    field :person_age, :integer
     timestamps(type: :utc_datetime)
   end
 end

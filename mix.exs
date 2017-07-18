@@ -63,6 +63,8 @@ defmodule Report.Mixfile do
      {:eview, "~> 0.12.0"},
      {:phoenix_ecto, "~> 3.2"},
      {:geo, "~> 1.5"},
+     {:timex, "~> 3.1"},
+     {:timex_ecto, "~> 3.1"},
      {:faker, "~> 0.8", only: [:test]},
      {:ex_machina, "~> 2.0", only: :test},
      {:benchfella, ">= 0.3.4", only: [:dev, :test]},

@@ -1,4 +1,4 @@
-defmodule Report.Repo.Migrations.CreateDevisionsTable do
+defmodule Report.Repo.Migrations.CreateDivisionsTable do
   use Ecto.Migration
 
   def change do

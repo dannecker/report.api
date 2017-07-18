@@ -7,22 +7,47 @@ defmodule Report.Replica.Replicas do
   alias Report.Repo
 
   def list_declarations do
-    Repo.all(declaration_query)
-  end
-
-  def stream_declrations_beetween(from, to) do
     declaration_query()
-    |> where_beetween(from, to)
-    |> Repo.stream(timeout: :infinity)
+    |> preload_declaration_assoc()
+    |> Repo.all
   end
 
-  def declaration_query do
-    from(d in Declaration)
+  def stream_declarations_beetween(from, to) do
+    declaration_query()
+    # |> where_beetween(from, to)
+    |> preload_declaration_assoc()
+    |> Repo.stream(timeout: 120_000_000)
   end
 
-  def where_beetween(query, from, to) do
+  def get_oldest_declaration_date do
+    declaration_query()
+    |> select([:inserted_at])
+    |> last
+    |> Repo.one
+    |> get_inserted_at
+  end
+  defp get_inserted_at(nil), do: DateTime.utc_now()
+  defp get_inserted_at(declaration) when is_map(declaration), do: Map.get(declaration, :inserted_at)
+
+  defp declaration_query do
+    from(d in Declaration,
+         where: d.status == "active",
+         where: d.is_active,
+         order_by: [desc: :inserted_at])
+  end
+
+  defp where_beetween(query, from, to) do
     query
-    |> where([d], d.created_at >= ^from)
-    |> where([d], d.created_at <= ^to)
+    |> where([d], d.inserted_at >= ^from)
+    |> where([d], d.inserted_at <= ^to)
+  end
+
+  defp preload_declaration_assoc(query) do
+    query
+    |> join(:left, [declaration], person in assoc(declaration, :person))
+    |> join(:left, [declaration], legal_entity in assoc(declaration, :legal_entity))
+    |> join(:left, [declaration], division in assoc(declaration, :division))
+    |> preload([declaration, person, legal_entity, division],
+               [person: person, legal_entity: legal_entity, division: division])
   end
 end
