@@ -19,7 +19,6 @@ legal_entity_id | uuid | not null
 [declarations_status_hstr]
 id | uuid | not null
 declaration_id | uuid | not null
-actor_id | uuid | not null
 status | enum('') | not null
 inserted_at | timestamp | not null
 
