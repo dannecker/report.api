@@ -2,6 +2,7 @@ defmodule Report.Factory do
   @moduledoc false
   use ExMachina.Ecto, repo: Report.Repo
   alias Report.Replica.Declaration
+  alias Report.Replica.DeclarationStatusHistory
   alias Report.Replica.Employee
   alias Report.Replica.Person
   alias Report.Replica.LegalEntity
@@ -23,6 +24,10 @@ defmodule Report.Factory do
       is_active: true,
       scope: ""
     }
+  end
+
+  def declaration_status_hstr_factory do
+    %DeclarationStatusHistory{}
   end
 
   def make_declaration_with_all do

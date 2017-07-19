@@ -28,7 +28,7 @@ defmodule Report.Mixfile do
                           :ecto, :postgrex, :cowboy,
                           :httpoison, :phoenix,
                           :multiverse, :eview,
-                          :phoenix_ecto],
+                          :phoenix_ecto, :jvalid],
      mod: {Report, []}]
   end
 
@@ -65,6 +65,7 @@ defmodule Report.Mixfile do
      {:geo, "~> 1.5"},
      {:timex, "~> 3.1"},
      {:timex_ecto, "~> 3.1"},
+     {:jvalid, "~> 0.6.0"},
      {:faker, "~> 0.8", only: [:test]},
      {:ex_machina, "~> 2.0", only: :test},
      {:benchfella, ">= 0.3.4", only: [:dev, :test]},

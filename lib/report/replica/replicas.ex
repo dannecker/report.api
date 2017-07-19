@@ -50,4 +50,32 @@ defmodule Report.Replica.Replicas do
     |> preload([declaration, person, legal_entity, division],
                [person: person, legal_entity: legal_entity, division: division])
   end
+
+  def params_query(query, params) when is_map(params) do
+    params = Enum.map(params, fn
+      ({key, value}) when is_bitstring(key) -> {String.to_atom(key), value}
+      ({key, value}) when is_atom(key) -> {key, value}
+    end)
+    where(query, ^params)
+  end
+
+  def interval_query(query, from, to) do
+    query
+    |> gte_date_query(from)
+    |> lte_date_query(to)
+  end
+
+  def gte_date_query(query, date) do
+    where(query, [e], fragment("?::date >= ?", e.inserted_at, ^date))
+  end
+
+  def lte_date_query(query, date) do
+    where(query, [e], fragment("?::date <= ?", e.inserted_at, ^date))
+  end
+
+  def count_query(query, field_name \\ :id) do
+    query
+    |> select([e], count(field(e, ^field_name)))
+    |> Repo.one!
+  end
 end
