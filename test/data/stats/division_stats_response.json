@@ -1,0 +1,37 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "properties": {
+    "data": {
+      "type": "object",
+      "properties": {
+        "total": {
+          "type": "object",
+          "properties": {
+            "declarations_total": {
+              "type": "number"
+            },
+            "declarations_created": {
+              "type": "number"
+            },
+            "declarations_closed": {
+              "type": "number"
+            },
+            "doctors": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "declarations_total",
+            "declarations_created",
+            "declarations_closed",
+            "doctors"
+          ]
+        }
+      },
+      "required": [
+        "total"
+      ]
+    }
+  }
+}
