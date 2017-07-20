@@ -10,7 +10,7 @@ defmodule Report.Replica.Division do
     field :addresses, {:array, :map}, null: false
     field :external_id, :string
     field :phones, {:array, :map}, null: false
-    field :mountain_group, :string
+    field :mountain_group, :boolean
     field :type, :string, null: false
     field :status, :string, null: false
     field :is_active, :boolean, default: false

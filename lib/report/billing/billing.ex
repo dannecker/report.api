@@ -10,7 +10,7 @@ defmodule Report.Billing do
     belongs_to :declaration, Report.Replica.Declaration, type: Ecto.UUID
     belongs_to :legal_entity, Report.Replica.LegalEntity, type: Ecto.UUID
     belongs_to :division, Report.Replica.Division, type: Ecto.UUID
-    field :mountain_group, :string
+    field :mountain_group, :boolean
     field :person_age, :integer
     timestamps(type: :utc_datetime)
   end
