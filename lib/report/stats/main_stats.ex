@@ -31,6 +31,37 @@ defmodule Report.Stats.MainStats do
     end
   end
 
+  def get_division_stats(id) do
+    doctors =
+      Employee
+      |> params_query(%{"employee_type" => "DOCTOR", "division_id" => id})
+      |> count_query()
+
+    total_declarations =
+      Declaration
+      |> params_query(%{"division_id" => id})
+      |> count_query()
+
+    created_declarations =
+      Declaration
+      |> params_query(%{"status" => "active", "division_id" => id})
+      |> count_query()
+
+    closed_declarations =
+      Declaration
+      |> params_query(%{"status" => "terminated", "division_id" => id})
+      |> count_query()
+
+    {:ok, %{
+      "total" => %{
+        "declarations_total" => total_declarations,
+        "declarations_created" => created_declarations,
+        "declarations_closed" => closed_declarations,
+        "doctors" => doctors,
+      }
+    }}
+  end
+
   def main_stats_by_period(%MainStatsRequest{from_date: from_date, to_date: to_date}) do
     msps =
       LegalEntity
@@ -63,16 +94,13 @@ defmodule Report.Stats.MainStats do
 
   def main_stats_by_date(date) do
     msps = LegalEntity
-    |> where([le], fragment("?::date >= ?", le.inserted_at, ^date))
-    |> select([le], count(le.id))
-    |> Repo.one!
+    |> gte_date_query(date)
+    |> count_query()
 
     doctors = Employee
-    |> where([e], fragment("?::date >= ?", e.inserted_at, ^date))
-    |> where([e], e.employee_type == "DOCTOR")
-    |> select([e], count(e.id))
-    |> Repo.one!
-
+    |> params_query(%{"employee_type" => "DOCTOR"})
+    |> gte_date_query(date)
+    |> count_query()
     # select count(*) from declarations where inserted_at <= to_date
     total_declarations =
       Declaration
