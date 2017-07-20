@@ -78,7 +78,7 @@ defmodule Report.Factory do
   end
 
   def division_factory do
-    bool_list = ["true", "false"]
+    bool_list = [true, false]
     %Division{
       email: sequence(:email, &"division-#{&1}@example.com"),
       name: Faker.Pokemon.name,
