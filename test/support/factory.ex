@@ -8,6 +8,7 @@ defmodule Report.Factory do
   alias Report.Replica.LegalEntity
   alias Report.Replica.MSP
   alias Report.Replica.Division
+  alias Report.Replica.Region
   alias Report.Billing
 
   def declaration_factory do
@@ -68,11 +69,10 @@ defmodule Report.Factory do
       position: Faker.Pokemon.name,
       start_date: start_date,
       end_date: end_date,
-      status: Faker.Pokemon.name,
       status_reason: Faker.Beer.style,
       inserted_by: Ecto.UUID.generate,
       updated_by: Ecto.UUID.generate,
-      status: "active",
+      status: "APPROVED",
       is_active: true
     }
   end
@@ -141,6 +141,12 @@ defmodule Report.Factory do
       billing_date: Faker.Date.forward(-30),
       declaration_id: declaration.id,
       legal_entity_id: declaration.legal_entity_id
+    }
+  end
+
+  def region_factory do
+    %Region{
+      name: "ЛЬВІВСЬКА"
     }
   end
 end

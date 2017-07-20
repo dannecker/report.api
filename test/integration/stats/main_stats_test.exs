@@ -22,12 +22,12 @@ defmodule Report.Integration.MainStatsTest do
              "declarations_created" => 1,
              "declarations_total" => 2,
              "doctors" => 2,
-             "msps" => 2} = main_stats["period"]
+             "msps" => 3} = main_stats["period"]
     assert %{"declarations_closed" => 1,
              "declarations_created" => 1,
              "declarations_total" => 2,
              "doctors" => 2,
-             "msps" => 2} = main_stats["total"]
+             "msps" => 3} = main_stats["total"]
   end
 
   test "get_division_stats/1" do
@@ -45,12 +45,79 @@ defmodule Report.Integration.MainStatsTest do
              "doctors" => 1} = main_stats["total"]
   end
 
+  test "get_regions_stats/1" do
+    %{"region" => region} = insert_fixtures()
+    from_date = "2017-01-01"
+    to_date = to_string(Date.utc_today())
+
+    {:ok, main_stats} = MainStats.get_regions_stats(%{
+      "from_date" => from_date,
+      "to_date" => to_date
+    })
+    schema =
+      "test/data/stats/regions_stats_response.json"
+      |> File.read!()
+      |> Poison.decode!()
+    :ok = NExJsonSchema.Validator.validate(schema, main_stats)
+
+    assert %{"from_date" => ^from_date, "to_date" => ^to_date} = main_stats
+    assert 2 = Enum.count(main_stats["regions"])
+
+    {:ok, main_stats} = MainStats.get_regions_stats(%{
+      "from_date" => from_date,
+      "to_date" => to_date,
+      "region_id" => region.id
+    })
+    schema =
+      "test/data/stats/regions_stats_response.json"
+      |> File.read!()
+      |> Poison.decode!()
+    :ok = NExJsonSchema.Validator.validate(schema, main_stats)
+
+    assert 1 = Enum.count(main_stats["regions"])
+    region_stats = hd(main_stats["regions"])
+    assert %{"region" => %{"name" => "ЛЬВІВСЬКА"}} = region_stats
+    assert %{"declarations_closed" => 1,
+             "declarations_created" => 1,
+             "declarations_total" => 2,
+             "doctors" => 2,
+             "msps" => 1} = region_stats["period"]
+    assert %{"declarations_closed" => 1,
+             "declarations_created" => 1,
+             "declarations_total" => 2,
+             "doctors" => 2,
+             "msps" => 1} = region_stats["total"]
+  end
+
   defp insert_fixtures do
+    region = insert(:region)
+    insert(:region, name: "ЧЕРКАСЬКА")
     person = insert(:person)
-    legal_entity = insert(:legal_entity)
+    insert(:legal_entity, addresses: [
+          %{"zip": "02091", "area": "ЧЕРКАСЬКА",
+            "type": "REGISTRATION", "region": "УМАНСЬКИЙ",
+            "street": "вул. Ніжинська", "country": "UA",
+            "building": "15", "apartment": "23",
+            "settlement": "УМАНЬ", "street_type": "STREET",
+            "settlement_id": "607dbc55-cb6b-4aaa-97c1-2a1e03476100",
+            "settlement_type": "CITY"}
+        ])
+    legal_entity = insert(:legal_entity, addresses: [
+      %{"zip": "02090", "area": "ЛЬВІВСЬКА",
+        "type": "REGISTRATION", "region": "ПУСТОМИТІВСЬКИЙ",
+        "street": "вул. Ніжинська", "country": "UA",
+        "building": "15", "apartment": "23",
+        "settlement": "СОРОКИ-ЛЬВІВСЬКІ", "street_type": "STREET",
+        "settlement_id": "707dbc55-cb6b-4aaa-97c1-2a1e03476100",
+        "settlement_type": "CITY"},
+    ])
     division = insert(:division, legal_entity_id: legal_entity.id)
-    employee = insert(:employee, employee_type: "DOCTOR", division: division)
-    insert(:employee, employee_type: "DOCTOR")
+    employee = insert(:employee,
+      employee_type: "DOCTOR",
+      division: division,
+      legal_entity_id: legal_entity.id
+    )
+    insert(:employee, employee_type: "DOCTOR", legal_entity_id: legal_entity.id)
     insert(:employee)
     insert(:legal_entity)
     declaration1 = insert(:declaration,
@@ -72,6 +139,7 @@ defmodule Report.Integration.MainStatsTest do
     insert(:declaration_status_hstr, declaration_id: declaration1.id, status: declaration1.status)
     insert(:declaration_status_hstr, declaration_id: declaration2.id, status: declaration2.status)
     %{
+      "region" => region,
       "division" => division,
       "legal_entity" => legal_entity,
       "employee" => employee,

@@ -78,4 +78,12 @@ defmodule Report.Replica.Replicas do
     |> select([e], count(field(e, ^field_name)))
     |> Repo.one!
   end
+
+  def add_date_query(query, %{"from" => from, "to" => to}), do: interval_query(query, from, to)
+  def add_date_query(query, %{"to" => to}), do: lte_date_query(query, to)
+
+  def add_area_query(query, nil), do: query
+  def add_area_query(query, region) do
+    where(query, [a], fragment("?->>'area'", a.address) == ^region)
+  end
 end
