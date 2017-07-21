@@ -28,6 +28,7 @@ defmodule Report.Web.Router do
       scope "/stats" do
         get "/", StatsController, :index
         get "/divisions/:id", StatsController, :divisions
+        get "/regions", StatsController, :regions
       end
     end
 

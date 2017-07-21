@@ -18,4 +18,10 @@ defmodule Report.Web.StatsController do
       render(conn, "index.json", stats: main_stats)
     end
   end
+
+  def regions(conn, params) do
+    with {:ok, main_stats} <- MainStats.get_regions_stats(params) do
+      render(conn, "index.json", stats: main_stats)
+    end
+  end
 end

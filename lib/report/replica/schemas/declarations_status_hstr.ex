@@ -3,8 +3,9 @@ defmodule Report.Replica.DeclarationStatusHistory do
   use Ecto.Schema
 
   schema "declarations_status_hstr" do
-    field :declaration_id, Ecto.UUID
     field :status, :string
+
+    belongs_to :declaration, Report.Replica.Declaration, type: Ecto.UUID
 
     timestamps(type: :utc_datetime, updated_at: false)
   end

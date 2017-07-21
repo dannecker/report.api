@@ -27,4 +27,18 @@ defmodule Report.Web.FallbackController do
     |> put_status(:unprocessable_entity)
     |> render(EView.Views.ValidationError, :"422", changeset)
   end
+
+  def call(conn, %Ecto.Changeset{valid?: false} = changeset) do
+    call(conn, {:error, changeset})
+  end
+
+  def call(conn, {:error, {:conflict, reason}}) do
+    call(conn, {:conflict, reason})
+  end
+
+  def call(conn, {:conflict, reason}) do
+    conn
+    |> put_status(:conflict)
+    |> render(EView.Views.Error, :"409", %{message: reason})
+  end
 end
