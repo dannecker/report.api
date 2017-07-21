@@ -14,7 +14,7 @@ defmodule Report.Factory do
     start_date = Faker.NaiveDateTime.forward(1)
     end_date   = NaiveDateTime.add(start_date, 31540000)
     %Declaration{
-      declaration_signed_id: Ecto.UUID.generate,
+      declaration_request_id: Ecto.UUID.generate,
       start_date: start_date,
       end_date: end_date,
       status: "active",
