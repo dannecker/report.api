@@ -65,7 +65,7 @@ defmodule Report.Web.StatsControllerTest do
       to_date: "2017-07-01",
       region_id: Ecto.UUID.generate()
     )
-    assert response(conn, 409)
+    assert response(conn, 404)
 
     region = insert(:region)
 
