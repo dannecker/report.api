@@ -1,7 +1,9 @@
 defmodule Report.Integration.MainStatsTest do
   use Report.Web.ConnCase
 
+  alias Report.Stats.HistogramStatsRequest
   alias Report.Stats.MainStats
+  use Timex
 
   test "get_main_stats/1" do
     insert_fixtures()
@@ -87,6 +89,196 @@ defmodule Report.Integration.MainStatsTest do
              "declarations_total" => 2,
              "doctors" => 2,
              "msps" => 1} = region_stats["total"]
+  end
+
+  test "get_histogram_stats/1" do
+    %{"region" => region} = insert_fixtures()
+    now = Timex.now
+    from_date =
+      now
+      |> Timex.shift(days: -20)
+      |> Timex.format!("%F", :strftime)
+    to_date = to_string(Date.utc_today())
+
+    {:ok, main_stats} = MainStats.get_histogram_stats(%{
+      "from_date" => from_date,
+      "to_date" => to_date,
+    })
+    schema =
+      "test/data/stats/histogram_stats_response.json"
+      |> File.read!()
+      |> Poison.decode!()
+    schema =
+      schema
+      |> Map.put("type", "array")
+      |> Map.put("items", schema["properties"]["data"]["items"])
+      |> Map.delete("properties")
+    :ok = NExJsonSchema.Validator.validate(schema, main_stats)
+
+    assert 21 = Enum.count(main_stats)
+    assert %{
+      "interval" => %{
+      "from_date" => ^from_date,
+      "to_date" => ^from_date
+    }} = List.first(main_stats)
+
+    assert %{
+      "interval" => %{
+      "from_date" => ^to_date,
+      "to_date" => ^to_date
+    }} = List.last(main_stats)
+    assert %{
+      "msps" => 1,
+      "doctors" => 2,
+      "declarations_total" => 2,
+      "declarations_created" => 1,
+      "declarations_closed" => 1} = main_stats |> List.last |> Map.get("period")
+    assert %{
+      "msps" => 1,
+      "doctors" => 2,
+      "declarations_total" => 2,
+      "declarations_created" => 1,
+      "declarations_closed" => 1} = main_stats |> List.last |> Map.get("total")
+
+    from_date =
+      now
+      |> Timex.beginning_of_month()
+      |> Timex.format!("%F", :strftime)
+    to_date =
+      now
+      |> Timex.end_of_month()
+      |> Timex.format!("%F", :strftime)
+    {:ok, main_stats} = MainStats.get_histogram_stats(%{
+      "from_date" => from_date,
+      "to_date" => to_date,
+      "region_id" => region.id,
+      "interval" => HistogramStatsRequest.interval(:month)
+    })
+    schema =
+      "test/data/stats/histogram_stats_response.json"
+      |> File.read!()
+      |> Poison.decode!()
+    schema =
+      schema
+      |> Map.put("type", "array")
+      |> Map.put("items", schema["properties"]["data"]["items"])
+      |> Map.delete("properties")
+    :ok = NExJsonSchema.Validator.validate(schema, main_stats)
+
+    assert 1 = Enum.count(main_stats)
+    assert %{
+      "interval" => %{
+      "from_date" => ^from_date,
+      "to_date" => ^to_date
+    }} = List.first(main_stats)
+
+    from_date =
+      now
+      |> Timex.beginning_of_year()
+      |> Timex.format!("%F", :strftime)
+    to_date =
+      now
+      |> Timex.end_of_year()
+      |> Timex.format!("%F", :strftime)
+    {:ok, main_stats} = MainStats.get_histogram_stats(%{
+      "from_date" => from_date,
+      "to_date" => to_date,
+      "region_id" => region.id,
+      "interval" => HistogramStatsRequest.interval(:year)
+    })
+    schema =
+      "test/data/stats/histogram_stats_response.json"
+      |> File.read!()
+      |> Poison.decode!()
+    schema =
+      schema
+      |> Map.put("type", "array")
+      |> Map.put("items", schema["properties"]["data"]["items"])
+      |> Map.delete("properties")
+    :ok = NExJsonSchema.Validator.validate(schema, main_stats)
+
+    assert 1 = Enum.count(main_stats)
+    assert %{
+      "interval" => %{
+      "from_date" => ^from_date,
+      "to_date" => ^to_date
+    }} = List.first(main_stats)
+  end
+
+  test "histogram_intervals/1" do
+    request = %HistogramStatsRequest{
+      from_date: ~D[2017-01-01],
+      to_date: ~D[2017-01-10],
+      interval: HistogramStatsRequest.interval(:day)
+    }
+    assert 10 == Enum.count(MainStats.histogram_intervals(request))
+
+    request = %HistogramStatsRequest{
+      from_date: ~D[2017-01-01],
+      to_date: ~D[2017-05-10],
+      interval: HistogramStatsRequest.interval(:month)
+    }
+    assert 5 == Enum.count(MainStats.histogram_intervals(request))
+
+    request = %HistogramStatsRequest{
+      from_date: ~D[2017-01-01],
+      to_date: ~D[2017-05-10],
+      interval: HistogramStatsRequest.interval(:year)
+    }
+    assert 1 == Enum.count(MainStats.histogram_intervals(request))
+  end
+
+  test "histogram_stats_skeleton/2" do
+    request = %HistogramStatsRequest{
+      from_date: ~D[2017-01-01],
+      to_date: ~D[2017-01-10],
+      interval: HistogramStatsRequest.interval(:day)
+    }
+    skeleton =
+      request
+      |> MainStats.histogram_intervals()
+      |> MainStats.histogram_stats_skeleton(request)
+    assert 10 == Enum.count(skeleton)
+
+    request = %HistogramStatsRequest{
+      from_date: ~D[2017-01-01],
+      to_date: ~D[2017-05-10],
+      interval: HistogramStatsRequest.interval(:month)
+    }
+    skeleton =
+      request
+      |> MainStats.histogram_intervals()
+      |> MainStats.histogram_stats_skeleton(request)
+    assert 5 == Enum.count(skeleton)
+
+    request = %HistogramStatsRequest{
+      from_date: ~D[2017-01-01],
+      to_date: ~D[2017-01-10],
+      interval: HistogramStatsRequest.interval(:month)
+    }
+    skeleton =
+      request
+      |> MainStats.histogram_intervals()
+      |> MainStats.histogram_stats_skeleton(request)
+    assert 1 == Enum.count(skeleton)
+    assert %{
+      "2017-01" => %{
+        "interval" => %{
+        "from_date" => "2017-01-01",
+        "to_date" => "2017-01-10"
+      }}
+    } = skeleton
+
+    request = %HistogramStatsRequest{
+      from_date: ~D[2017-01-01],
+      to_date: ~D[2017-05-10],
+      interval: HistogramStatsRequest.interval(:year)
+    }
+    skeleton =
+      request
+      |> MainStats.histogram_intervals()
+      |> MainStats.histogram_stats_skeleton(request)
+    assert 1 == Enum.count(skeleton)
   end
 
   defp insert_fixtures do
