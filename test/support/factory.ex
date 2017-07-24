@@ -10,6 +10,7 @@ defmodule Report.Factory do
   alias Report.Replica.Division
   alias Report.Replica.Region
   alias Report.Billing
+  alias Report.ReportLog
 
   def declaration_factory do
     start_date = Faker.NaiveDateTime.forward(1)
@@ -140,7 +141,16 @@ defmodule Report.Factory do
     %Billing{
       billing_date: Faker.Date.forward(-30),
       declaration_id: declaration.id,
-      legal_entity_id: declaration.legal_entity_id
+      legal_entity_id: declaration.legal_entity_id,
+      person_age: :rand.uniform(65),
+      mountain_group: Enum.at(["true", "false"], :rand.uniform(2) - 1)
+    }
+  end
+
+  def report_log_factory do
+    %ReportLog{
+      type: "capitation",
+      public_url: Faker.Internet.url
     }
   end
 

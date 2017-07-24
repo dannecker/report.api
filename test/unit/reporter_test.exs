@@ -73,4 +73,45 @@ defmodule Report.ReporterTest do
       assert 7 == Timex.diff(Timex.today, b.person.birth_date, :years)
     end
   end
+
+  describe "Capitation report with custom data" do
+    test "generate_csv/0" do
+      le = insert_list(3, :legal_entity)
+      division = for _ <- 0..29, do: insert(:division, %{legal_entity_id: Enum.random(le).id})
+      persons = insert_list(100, :person)
+      Enum.each(persons,
+        fn p ->
+          d = Enum.random(division)
+          insert(:declaration, %{
+            legal_entity_id: d.legal_entity_id,
+            person_id: p.id,
+            division_id: d.id,
+            employee_id: Ecto.UUID.generate()
+            })
+      end)
+      Reporter.generate_billing()
+      Reporter.generate_csv
+      data = CSV.decode(File.stream!("/tmp/capitation.csv"))
+      data = Enum.drop(data, 1)
+      assert length(data) == 9
+    end
+
+    test "capitation/0" do
+      le = insert_list(3, :legal_entity)
+      division = for _ <- 0..29, do: insert(:division, %{legal_entity_id: Enum.random(le).id})
+      persons = insert_list(100, :person)
+      Enum.each(persons,
+        fn p ->
+          d = Enum.random(division)
+          insert(:declaration, %{
+            legal_entity_id: d.legal_entity_id,
+            person_id: p.id,
+            division_id: d.id,
+            employee_id: Ecto.UUID.generate()
+            })
+      end)
+      Reporter.capitation
+      assert length(Repo.all(Report.ReportLog)) == 1
+    end
+  end
 end

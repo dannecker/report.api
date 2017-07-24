@@ -56,6 +56,16 @@ config :logger_json, :backend,
   json_encoder: Poison,
   metadata: :all
 
+config :report_api, Report.MediaStorage,
+  endpoint: {:system, "MEDIA_STORAGE_ENDPOINT", "http://api-svc.ael"},
+  # endpoint: {:system, "MEDIA_STORAGE_ENDPOINT", "http://0.0.0.0:64927"},
+  capitation_report_bucket: {:system, "MEDIA_STORAGE_CAPITATION_REPORT_BUCKET", "capitation-reports-dev"},
+  enabled?: {:system, :boolean, "MEDIA_STORAGE_ENABLED", false},
+  hackney_options: [
+    connect_timeout: {:system, :integer, "MEDIA_STORAGE_REQUEST_TIMEOUT", 30_000},
+    recv_timeout: {:system, :integer, "MEDIA_STORAGE_REQUEST_TIMEOUT", 30_000},
+    timeout: {:system, :integer, "MEDIA_STORAGE_REQUEST_TIMEOUT", 30_000}
+  ]
 # It is also possible to import configuration files, relative to this
 # directory. For example, you can emulate configuration per environment
 # by uncommenting the line below and defining dev.exs, test.exs and such.

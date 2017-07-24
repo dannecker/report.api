@@ -12,9 +12,8 @@ defmodule Report.Replica.Replicas do
     |> Repo.all
   end
 
-  def stream_declarations_beetween(from, to) do
+  def stream_declarations_beetween(_from, _to) do
     declaration_query()
-    # |> where_beetween(from, to)
     |> preload_declaration_assoc()
     |> Repo.stream(timeout: 120_000_000)
   end

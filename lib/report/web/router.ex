@@ -30,6 +30,11 @@ defmodule Report.Web.Router do
         get "/divisions/:id", StatsController, :divisions
         get "/regions", StatsController, :regions
       end
+
+      scope "/log" do
+        get "/", ReportLogsController, :index
+        get "/temp_capitation", ReportLogsController, :temp_capitation
+      end
     end
 
     get "/page", PageController, :index

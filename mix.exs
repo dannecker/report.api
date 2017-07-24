@@ -64,6 +64,7 @@ defmodule Report.Mixfile do
      {:phoenix_ecto, "~> 3.2"},
      {:geo, "~> 1.5"},
      {:timex, "~> 3.1"},
+     {:csv, "~> 2.0.0"},
      {:timex_ecto, "~> 3.1"},
      {:jvalid, "~> 0.6.0"},
      {:faker, "~> 0.8", only: [:test]},

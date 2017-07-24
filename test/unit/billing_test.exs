@@ -20,6 +20,28 @@ defmodule Report.BillingTest do
       assert billing.billing_date == Billings.get_last_billing_date()
     end
 
+    test "list_billing/1" do
+      assert length(Billings.list_billing) == 15
+    end
+
+    test "todays_billing/1" do
+      Repo.update_all(Billing, set: [billing_date: ~D[1970-01-01]])
+
+      todays_billing = fn -> Billing |> Billings.todays_billing |> Billings.list_billing() end
+      assert length(todays_billing.()) == 0
+      Billing
+      |> first
+      |> Repo.one
+      |> Ecto.Changeset.change(billing_date: Timex.today)
+      |> Repo.update
+      assert length(todays_billing.()) == 1
+    end
+
+    test "get_billing_for_csv/0" do
+      Repo.update_all(Billing, set: [billing_date: Timex.today])
+      assert length(Billings.get_billing_for_capitation()) == 15
+    end
+
     test "without any billings get_last_billing_date/0" do
       Repo.delete_all(Report.Billing)
       make_declaration_with_all()
@@ -43,6 +65,27 @@ defmodule Report.BillingTest do
       billing = Billings.billing_changeset(%Billing{}, declaration, declaration.person, declaration.division)
       assert billing.changes.mountain_group == declaration.division.mountain_group
       assert billing.changes.person_age == Timex.diff(Timex.today, declaration.person.birth_date, :years)
+    end
+  end
+
+  describe "Billing API with custom billing records" do
+    test "get_billing_for_csv/0 with created billing" do
+      le = insert_list(5, :legal_entity)
+      division = for _ <- 0..9, do: insert(:division, %{legal_entity_id: Enum.random(le).id})
+      persons = insert_list(100, :person)
+      Enum.each(persons,
+        fn p ->
+          d = Enum.random(division)
+          insert(:declaration, %{
+            legal_entity_id: d.legal_entity_id,
+            person_id: p.id,
+            division_id: d.id,
+            employee_id: Ecto.UUID.generate()
+            })
+      end)
+      Report.Reporter.generate_billing()
+      billing = Billings.get_billing_for_capitation()
+      assert length(billing) > 4
     end
   end
 end
