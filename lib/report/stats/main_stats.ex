@@ -224,7 +224,7 @@ defmodule Report.Stats.MainStats do
   defp get_regions(nil), do: {:ok, Repo.all(Region)}
   defp get_regions(id) do
     case Repo.get(Region, id) do
-      nil -> {:error, {:conflict, "Invalid region id"}}
+      nil -> {:error, :not_found}
       region -> {:ok, [region]}
     end
   end
