@@ -24,4 +24,10 @@ defmodule Report.Web.StatsController do
       render(conn, "index.json", stats: main_stats)
     end
   end
+
+  def histogram(conn, params) do
+    with {:ok, main_stats} <- MainStats.get_histogram_stats(params) do
+      render(conn, "index.json", stats: main_stats)
+    end
+  end
 end
