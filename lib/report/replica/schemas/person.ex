@@ -6,7 +6,7 @@ defmodule Report.Replica.Person do
   schema "persons" do
     field :birth_date, :date
     field :death_date, :date
-    field :addresses, :map
+    field :addresses, {:array, :map}
     timestamps(type: :utc_datetime)
   end
 end
