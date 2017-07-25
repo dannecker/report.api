@@ -17,7 +17,7 @@ defmodule Report.Web.ReportLogsController do
 
   def temp_capitation(conn, _params) do
     Repo.delete_all(Report.Billing)
-    Reporter.capitation
+    Task.start(Reporter, :capitation, [])
     render(conn, "index.json", status: "ok")
   end
 end
