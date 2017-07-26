@@ -5,70 +5,20 @@
     "data": {
       "type": "object",
       "properties": {
-        "from_date": {
-          "type": "string"
-        },
-        "to_date": {
-          "type": "string"
-        },
-        "period": {
-          "type": "object",
-          "properties": {
-            "declarations_total": {
-              "type": "number"
-            },
-            "declarations_created": {
-              "type": "number"
-            },
-            "declarations_closed": {
-              "type": "number"
-            },
-            "msps": {
-              "type": "number"
-            },
-            "doctors": {
-              "type": "number"
-            }
+          "msps": {
+            "type": "number"
           },
-          "required": [
-            "declarations_total",
-            "declarations_created",
-            "declarations_closed",
-            "msps",
-            "doctors"
-          ]
-        },
-        "total": {
-          "type": "object",
-          "properties": {
-            "declarations_total": {
-              "type": "number"
-            },
-            "declarations_created": {
-              "type": "number"
-            },
-            "declarations_closed": {
-              "type": "number"
-            },
-            "msps": {
-              "type": "number"
-            },
-            "doctors": {
-              "type": "number"
-            }
+          "doctors": {
+            "type": "number"
           },
-          "required": [
-            "declarations_total",
-            "declarations_created",
-            "declarations_closed",
-            "msps",
-            "doctors"
-          ]
-        }
+          "declarations": {
+            "type": "number"
+          }
       },
       "required": [
-        "period",
-        "total"
+        "msps",
+        "doctors",
+        "declarations"
       ]
     }
   }

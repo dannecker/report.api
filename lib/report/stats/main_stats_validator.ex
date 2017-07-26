@@ -3,32 +3,10 @@ defmodule Report.Stats.MainStatsValidator do
 
   import Ecto.Changeset
 
-  alias Report.Stats.MainStatsRequest
-  alias Report.Stats.RegionsStatsRequest
   alias Report.Stats.HistogramStatsRequest
 
-  @fields_main_stats ~w(from_date to_date)a
-  @fields_required_main_stats ~w(from_date to_date)a
-
-  @fields_regions_stats ~w(from_date to_date region_id)a
-  @fields_required_regions_stats ~w(from_date to_date)a
-
-  @fields_histogram_stats ~w(from_date to_date region_id interval)a
-  @fields_required_histogram_stats ~w(from_date to_date)a
-
-  def main_stats_changeset(%MainStatsRequest{} = main_stats_request, params) do
-    main_stats_request
-    |> cast(params, @fields_main_stats)
-    |> validate_required(@fields_required_main_stats)
-    |> validate_period()
-  end
-
-  def regions_stats_changeset(%RegionsStatsRequest{} = regions_stats_request, params) do
-    regions_stats_request
-    |> cast(params, @fields_regions_stats)
-    |> validate_required(@fields_required_regions_stats)
-    |> validate_period()
-  end
+  @fields_histogram_stats ~w(from_date to_date interval)a
+  @fields_required_histogram_stats ~w(from_date to_date interval)a
 
   def histogram_stats_changeset(%HistogramStatsRequest{} = histogram_stats_request, params) do
     histogram_stats_request
@@ -41,10 +19,47 @@ defmodule Report.Stats.MainStatsValidator do
   defp validate_period(%Ecto.Changeset{valid?: true} = changeset) do
     from_date = get_change(changeset, :from_date)
     to_date = get_change(changeset, :to_date)
-    case Date.compare(from_date, to_date) do
-      :gt -> add_error(changeset, :to_date, "can't be less than from_date")
-      _ -> changeset
+    interval = get_change(changeset, :interval)
+
+    with {:ok, changeset} <- compare_dates(changeset, from_date, to_date),
+         {:ok, changeset} <- validate_date(changeset, from_date, interval, :start),
+         {:ok, changeset} <- validate_date(changeset, to_date, interval, :end)
+    do
+      changeset
     end
   end
   defp validate_period(changeset), do: changeset
+
+  defp compare_dates(changeset, from_date, to_date) do
+    case Date.compare(from_date, to_date) do
+      :gt -> add_error(changeset, :to_date, "can't be less than from_date")
+      _ -> {:ok, changeset}
+    end
+  end
+
+  defp validate_date(changeset, _, "DAY", _), do: {:ok, changeset}
+  defp validate_date(changeset, date, "MONTH", :start) do
+    case Timex.compare(Timex.beginning_of_month(date), date) do
+      0 -> {:ok, changeset}
+      _ -> add_error(changeset, :from_date, "invalid period")
+    end
+  end
+  defp validate_date(changeset, date, "MONTH", :end) do
+    case Timex.compare(Timex.end_of_month(date), date) do
+      0 -> {:ok, changeset}
+      _ -> add_error(changeset, :from_date, "invalid period")
+    end
+  end
+  defp validate_date(changeset, date, "YEAR", :start) do
+    case Timex.compare(Timex.beginning_of_year(date), date) do
+      0 -> {:ok, changeset}
+      false -> add_error(changeset, :from_date, "invalid period")
+    end
+  end
+  defp validate_date(changeset, date, "YEAR", :end) do
+    case Timex.compare(Timex.end_of_year(date), date) do
+      0 -> {:ok, changeset}
+      false -> add_error(changeset, :from_date, "invalid period")
+    end
+  end
 end

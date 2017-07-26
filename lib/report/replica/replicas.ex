@@ -72,6 +72,10 @@ defmodule Report.Replica.Replicas do
     where(query, [e], fragment("?::date <= ?", e.inserted_at, ^date))
   end
 
+  def lt_date_query(query, date) do
+    where(query, [e], fragment("?::date < ?", e.inserted_at, ^date))
+  end
+
   def count_query(query, field_name \\ :id) do
     query
     |> select([e], count(field(e, ^field_name)))
