@@ -105,4 +105,62 @@ defmodule Report.Web.StatsControllerTest do
       |> Poison.decode!()
     :ok = NExJsonSchema.Validator.validate(schema, json_response(conn, 200))
   end
+
+  test "get divisions map stats", %{conn: conn} do
+    conn = get conn, stats_path(conn, :divisions_map)
+    assert response(conn, 422)
+
+    conn = get conn, stats_path(conn, :divisions_map,
+      lefttop_latitude: "30.1233",
+      lefttop_longitude: "50.32423",
+      rightbottom_latitude: "50.32423",
+    )
+    assert response(conn, 422)
+
+    conn = get conn, stats_path(conn, :divisions_map,
+      lefttop_latitude: "invalid",
+      lefttop_longitude: "50.32423",
+      rightbottom_latitude: "50.32423",
+      rightbottom_longitude: "50.32423"
+    )
+    assert response(conn, 422)
+
+    conn = get conn, stats_path(conn, :divisions_map,
+      lefttop_latitude: "30.1233",
+      lefttop_longitude: "50.32423",
+      rightbottom_latitude: "50.32423",
+      rightbottom_longitude: "50.32423"
+    )
+    assert response(conn, 200)
+
+    conn = get conn, stats_path(conn, :divisions_map,
+      type: "invalid",
+      lefttop_latitude: "30.1233",
+      lefttop_longitude: "50.32423",
+      rightbottom_latitude: "50.32423",
+      rightbottom_longitude: "50.32423"
+    )
+    assert response(conn, 422)
+
+    insert_fixtures()
+    conn = get conn, stats_path(conn, :divisions_map,
+      lefttop_latitude: 35,
+      lefttop_longitude: 45,
+      rightbottom_latitude: 25,
+      rightbottom_longitude: 55,
+    )
+    assert map_stats = response(conn, 200)
+    map_stats = Poison.decode!(map_stats)
+
+    schema =
+      "test/data/stats/divisions_map_response.json"
+      |> File.read!()
+      |> Poison.decode!()
+
+    :ok = NExJsonSchema.Validator.validate(schema, map_stats)
+  end
+
+  defp insert_fixtures do
+    insert(:division, location: %Geo.Point{coordinates: {30.1233, 50.32423}})
+  end
 end
