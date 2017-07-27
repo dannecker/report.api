@@ -127,13 +127,11 @@ parent_settlement | UUID
 
 [streets]
 id | UUID | NOT NULL
-district_id | UUID | NOT NULL
-region_id | UUID | NOT NULL
 settlement_id | UUID | NOT NULL
-street_type | VARCHAR(10) | NOT NULL
-street_name | VARCHAR(150) | NOT NULL
-numbers | VARCHAR(10) | NOT NULL
-postal_code | VARCHAR(10) | NOT NULL
+type | VARCHAR(255) | NOT NULL
+name | VARCHAR(150) | NOT NULL
+inserted_at | timestamp | not null
+updated_at | timestamp
 
 [streets_aliases]
 id | UUID | NOT NULL
@@ -149,6 +147,27 @@ red_msp_id | uuid | not null
 mountain_group | enum('')
 age_group | enum('')
 
+[red_msps]
+id | uuid | not null
+name | varchar | not null
+edrpou | varchar(8) | not null unique
+inserted_at | timestamp | not null
+inserted_by | uuid | not null
+updated_at | timestamp
+updated_by | uuid | not null
+is_active | boolean | not null
+type | enum('child','general') | not null
+population_count | integer| not null
+
+[red_msps_territories]
+id | uuid | not null
+red_msp_id | uuid | not null
+settlement_id | uuid | not null
+street_type | VARCHAR(250)
+street_name | VARCHAR(250)
+index | VARCHAR(5)
+houses| VARCHAR(2000)
+
 
 employees 1--* declarations
 divisions *--1 legal_entities
@@ -163,6 +182,7 @@ declarations 1--* declarations_status_hstr
 
 
 
+
 regions 1--+ districts
 regions 1--+ settlements
 districts 1--+ settlements
@@ -172,5 +192,6 @@ districts 1--+ streets
 streets 1--+ streets_aliases
 
 
-billing 1--1 declarations
+billing 1--* declarations
 billing *--1 legal_entities
+red_msps 1--* red_msps_territories
