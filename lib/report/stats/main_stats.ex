@@ -119,14 +119,19 @@ defmodule Report.Stats.MainStats do
 
     active_declarations = active_declarations_by_date(from_date)
     created_declarations =
-      from_date
-      |> created_declarations_by_intervals(to_date, interval)
+      Declaration
+      |> interval_query(from_date, to_date)
+      |> declarations_by_intervals(interval)
+      |> Repo.all
       |> Enum.into(%{}, fn %{count: count, date: date} ->
         {date, count}
       end)
     closed_declarations =
-      from_date
-      |> closed_declarations_by_intervals(to_date, interval)
+      DeclarationStatusHistory
+      |> interval_query(from_date, to_date)
+      |> where([dsh], dsh.status in ~w(terminated closed))
+      |> declarations_by_intervals(interval)
+      |> Repo.all
       |> Enum.into(%{}, fn %{count: count, date: date} ->
         {date, count}
       end)
@@ -154,46 +159,9 @@ defmodule Report.Stats.MainStats do
     skeleton
   end
 
-  defp created_declarations_by_intervals(from_date, to_date, "DAY") do
-    Declaration
-    |> interval_query(from_date, to_date)
-    |> histogram_day_query()
-    |> Repo.all
-  end
-  defp created_declarations_by_intervals(from_date, to_date, "MONTH") do
-    Declaration
-    |> interval_query(from_date, to_date)
-    |> histogram_month_query()
-    |> Repo.all
-  end
-  defp created_declarations_by_intervals(from_date, to_date, "YEAR") do
-    Declaration
-    |> interval_query(from_date, to_date)
-    |> histogram_year_query()
-    |> Repo.all
-  end
-
-  defp closed_declarations_by_intervals(from_date, to_date, "DAY") do
-    DeclarationStatusHistory
-    |> interval_query(from_date, to_date)
-    |> params_query(%{"status" => "terminated"})
-    |> histogram_day_query()
-    |> Repo.all
-  end
-  defp closed_declarations_by_intervals(from_date, to_date, "MONTH") do
-    DeclarationStatusHistory
-    |> interval_query(from_date, to_date)
-    |> params_query(%{"status" => "terminated"})
-    |> histogram_month_query()
-    |> Repo.all
-  end
-  defp closed_declarations_by_intervals(from_date, to_date, "YEAR") do
-    DeclarationStatusHistory
-    |> interval_query(from_date, to_date)
-    |> params_query(%{"status" => "terminated"})
-    |> histogram_year_query()
-    |> Repo.all
-  end
+  defp declarations_by_intervals(query, "DAY"), do: histogram_day_query(query)
+  defp declarations_by_intervals(query, "MONTH"), do: histogram_month_query(query)
+  defp declarations_by_intervals(query, "YEAR"), do: histogram_year_query(query)
 
   def histogram_stats_skeleton(%HistogramStatsRequest{} = request) do
     %{interval: interval, from_date: from_date, to_date: to_date} = request
