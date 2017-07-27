@@ -12,8 +12,7 @@ defmodule Report.Stats.HistogramStatsRequest do
   schema "histogram_stats" do
     field :from_date, :date
     field :to_date, :date
-    field :region_id, :string
-    field :interval, :string, default: "DAY"
+    field :interval, :string
   end
 
   def interval(:day), do: @interval_day

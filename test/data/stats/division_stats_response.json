@@ -5,32 +5,40 @@
     "data": {
       "type": "object",
       "properties": {
-        "total": {
+        "division": {
           "type": "object",
           "properties": {
-            "declarations_total": {
-              "type": "number"
+            "id": {
+              "type": "string"
             },
-            "declarations_created": {
-              "type": "number"
-            },
-            "declarations_closed": {
+            "name": {
+              "type": "string"
+            }
+          }
+        },
+        "stats": {
+          "type": "object",
+          "properties": {
+            "declarations": {
               "type": "number"
             },
             "doctors": {
               "type": "number"
+            },
+            "msps": {
+              "type": "number"
             }
           },
           "required": [
-            "declarations_total",
-            "declarations_created",
-            "declarations_closed",
-            "doctors"
+            "declarations",
+            "doctors",
+            "msps"
           ]
         }
       },
       "required": [
-        "total"
+        "stats",
+        "division"
       ]
     }
   }
