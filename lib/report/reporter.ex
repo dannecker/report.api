@@ -6,98 +6,91 @@ defmodule Report.Reporter do
   alias Report.MediaStorage
   alias Report.ReportLog
   alias Report.ReportLogs
+  alias Report.BillingProducer
 
-  def capitation(order \\ :sync) do
+  def capitation do
+    order = Confex.get(:report_api, :async_billing)
     generate_billing(order)
     generate_csv()
     file = File.read!("/tmp/capitation.csv")
-    {:ok, public_url} = MediaStorage.store_signed_content(file, :capitation_report_bucket,
-                                                           to_string(Timex.to_unix(Timex.now)),
-                                                           [{"Content-Type", "application/json"}])
+    {:ok, public_url} =
+      MediaStorage.store_signed_content(file, :capitation_report_bucket,
+        to_string(Timex.to_unix(Timex.now)), [{"Content-Type", "application/json"}])
     {:ok, log} = ReportLogs.save_capitation_csv_url(%ReportLog{}, %{public_url: public_url})
     log
   end
 
-  def generate_billing(order \\ :sync) do
+  def generate_billing(async \\ false) do
     last_billing_datetime = Timex.to_datetime(Billings.get_last_billing_date())
     to_date =  Timex.to_datetime(Timex.shift(Timex.today(), hours: 24))
     Repo.transaction(fn ->
       last_billing_datetime
       |> Replicas.stream_declarations_beetween(to_date)
-      |> declaration_each(order)
+      |> Stream.each(fn billing -> Billings.create_billing(billing) end)
       |> Stream.run
-    end)
+    end, timeout: 120_000)
   end
 
   def generate_csv do
-    headers = ["edrpou", "name", "mountain_group", "0-5", "6-17", "18-39", "40-64", ">65"]
     file = File.stream!("/tmp/capitation.csv", [:write, :utf8])
-    Billings.get_billing_for_capitation
-    |> Stream.chunk_by(&(&1[:edrpou]))
-    |> Stream.map(&calcualte_total(&1, length(&1)))
-    |> Stream.flat_map(fn x -> x end)
-    |> CSV.encode(headers: headers)
-    |> Stream.into(file)
-    |> Stream.run
+    Repo.transaction(fn ->
+      Billings.get_billing_for_capitation
+      |> Stream.chunk_by(fn x -> Enum.at(x, 0) end)
+      |> Stream.map(&calcualte_total(&1, length(&1)))
+      |> Stream.flat_map(fn x -> x end)
+      |> CSV.encode()
+      |> Stream.into(file)
+      |> Stream.run
+    end, timeout: 120_000)
   end
 
   defp calcualte_total(billings, 2) do
     b_one = Enum.at(billings, 0)
     b_two = Enum.at(billings, 1)
+    [edrpou1, name1, _, age1_1, age2_1, age3_1, age4_1, age5_1] = b_one
+    [_, _, _, age1_2, age2_2, age3_2, age4_2, age5_2]           = b_two
     total_billing = [
-      edrpou: b_one[:edrpou],
-      name: b_one[:name],
-      mountain_group: "MSP Total",
-      "0-5": b_one[:"0-5"] + b_two[:"0-5"],
-      "6-17": b_one[:"6-17"] + b_two[:"6-17"],
-      "18-39": b_one[:"18-39"] + b_two[:"18-39"],
-      "40-64": b_one[:"40-64"] + b_two[:"40-64"],
-      ">65": b_one[:">65"] + b_two[:">65"]
+      edrpou1, name1, "MSP Total", age1_1 + age1_2, age2_1 + age2_2, age3_1 + age3_2, age4_1 + age4_2, age5_1 + age5_2
     ]
-    [list_to_map_strings(b_one)] ++ [list_to_map_strings(b_two)] ++ [list_to_map_strings(total_billing)]
+    list = [list_to_map_strings(b_one)] ++ [list_to_map_strings(b_two)] ++ [list_to_map_strings(total_billing)]
+    sort_by_mountain_group(list)
   end
 
   defp calcualte_total(billings, 1) do
     billings = List.flatten(billings)
-    temp_billing = [
-      edrpou: billings[:edrpou],
-      name: billings[:name],
-      mountain_group: !billings[:mountain_group],
-      "0-5": 0,
-      "6-17": 0,
-      "18-39": 0,
-      "40-64": 0,
-      ">65": 0,
-    ]
-    total_billing = [
-      edrpou: billings[:edrpou],
-      name: billings[:name],
-      mountain_group: "MSP Total",
-      "0-5": billings[:"0-5"],
-      "6-17": billings[:"6-17"],
-      "18-39": billings[:"18-39"],
-      "40-64": billings[:"40-64"],
-      ">65": billings[:">65"]
-    ]
-    [list_to_map_strings(temp_billing)] ++ [list_to_map_strings(billings)] ++ [list_to_map_strings(total_billing)]
+    [edrpou, name, mountain_group, age1, age2, age3, age4, age5] = billings
+    mountain_group = present?(mountain_group)
+    temp_billing = [edrpou, name, !mountain_group, 0, 0, 0, 0, 0]
+    total_billing = [edrpou, name, "MSP Total", age1, age2, age3, age4, age5]
+    list = [list_to_map_strings(temp_billing)] ++
+           [list_to_map_strings(billings)] ++
+           [list_to_map_strings(total_billing)]
+    sort_by_mountain_group(list)
   end
 
   defp list_to_map_strings(list) do
-    list
-    |> Enum.map(fn {k, v} -> {to_string(k), to_string_names(v)} end)
-    |> Enum.into(%{})
+    Enum.map(list, fn v -> to_string_names(v) end)
   end
 
-  defp to_string_names(value) when is_boolean(value)  do
-    bools = [true: "MSP Mountain", false: "MSP Regular"]
+  defp to_string_names(value) when is_boolean(value) or is_nil(value)  do
+    bools = [true: "MSP Mountain", false: "MSP Regular", nil: "MSP Regular"]
     bools[value]
   end
   defp to_string_names(value), do: to_string(value)
 
-  defp declaration_each(items, :sync) do
-    Stream.each(items, fn(item) -> Billings.create_billing(item) end)
+  defp sort_by_mountain_group(list) do
+    mapper =
+      fn([_, _, group, _, _, _, _, _]) ->
+        case group do
+          "MSP Mountain" -> 1
+          "MSP Regular"  -> 2
+          "MSP Total"    -> 3
+        end
+      end
+    Enum.sort_by(list, &(mapper.(&1)), &<=/2)
   end
-  defp declaration_each(items, :async) do
-    Task.async_stream(items, Billings, :create_billing, [], [])
-  end
+
+  defp present?(nil), do: false
+  defp present?(false), do: false
+  defp present?(_), do: true
 end

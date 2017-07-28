@@ -7,7 +7,8 @@ defmodule Report.Billings do
   alias Report.Repo
   alias Report.Replica.Replicas
   alias Report.Replica.Declaration
-  alias Ecto.Adapters.SQL
+  alias Report.Replica.LegalEntity
+  alias Report.GandalfCaller
 
   def get_last_billing_date do
     Billing
@@ -46,10 +47,24 @@ defmodule Report.Billings do
     |> put_change(:billing_date, Timex.today)
     |> put_mountain_group(division)
     |> put_person_age(person)
+    |> put_decision()
   end
 
   defp put_mountain_group(billing_chset, division) do
     put_change(billing_chset, :mountain_group, division.mountain_group)
+  end
+
+  defp put_decision(billing_chset) do
+    make_decision(billing_chset)
+  end
+
+  defp make_decision(billing_chset) do
+    person_age = billing_chset.changes.person_age
+    mountain_group = billing_chset.changes.mountain_group
+    decision_params = GandalfCaller.make_decision(%{"mountain_group": mountain_group, "age": person_age})
+    billing_chset
+    |> put_change(:decision_id, decision_params.id)
+    |> put_change(:compensation_group, decision_params.decision)
   end
 
   defp put_person_age(billing_chset, person) do
@@ -66,28 +81,27 @@ defmodule Report.Billings do
   end
 
   def get_billing_for_capitation(date \\ Timex.today) do
-    raw_sql_to_map(aggregate_for_capitation_sql())
+    date
+    |> get_legal_entities_for_csv()
+    |> Repo.stream(timeout: :infinity)
   end
 
-  defp raw_sql_to_map(sql) do
-    res = SQL.query!(Repo, sql, [Timex.today])
-    cols = Enum.map(res.columns, &(String.to_atom(&1)))
-    Enum.map(res.rows, &Enum.zip(cols, &1))
-  end
-
-  defp aggregate_for_capitation_sql do
-    """
-      select le.edrpou, le.name, b.mountain_group,
-      sum(case when person_age<5 then 1 else 0 end) as "0-5",
-      sum(case when person_age>=5 and person_age<18 then 1 else 0 end) as "6-17",
-      sum(case when person_age>17 and person_age<40 then 1 else 0 end) as "18-39",
-      sum(case when person_age>39 and person_age<65 then 1 else 0 end) as "40-64",
-      sum(case when person_age>64 then 1 else 0 end) as ">65"
-      from billings as b
-      join legal_entities le on (b.legal_entity_id = le.id)
-      where b.billing_date = $1::date
-      group by b.legal_entity_id, b.mountain_group, le.name, le.edrpou
-      order by le.edrpou
-    """
+  def get_legal_entities_for_csv(billing_date) do
+    from le in LegalEntity,
+    full_join: b in Billing, on: le.id == b.legal_entity_id,
+    where: b.billing_date == ^billing_date,
+    or_where: is_nil(b.billing_date),
+    group_by: [le.edrpou, b.mountain_group, le.name],
+    order_by: le.edrpou,
+    select: [
+      le.edrpou,
+      le.name,
+      b.mountain_group,
+      fragment(~s(sum\(case when person_age<5 then 1 else 0 end\) as "0-5")),
+      fragment(~s(sum\(case when person_age>=5 and person_age<18 then 1 else 0 end\) as "6-17")),
+      fragment(~s(sum\(case when person_age>17 and person_age<40 then 1 else 0 end\) as "18-39")),
+      fragment(~s(sum\(case when person_age>39 and person_age<65 then 1 else 0 end\) as "40-64")),
+      fragment(~s(sum\(case when person_age>64 then 1 else 0 end\) as ">65"))
+    ]
   end
 end

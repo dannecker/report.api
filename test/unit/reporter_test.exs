@@ -1,6 +1,6 @@
 defmodule Report.ReporterTest do
   @moduledoc false
-  use Report.DataCase
+  use Report.DataCase, async: true
   import Report.Factory
   alias Report.Reporter
   alias Report.Repo
@@ -12,7 +12,7 @@ defmodule Report.ReporterTest do
     end
 
     test "generate_billing/0" do
-      Reporter.generate_billing
+      Reporter.generate_billing(true)
       billings = Repo.all(Report.Billing)
       assert length(billings) == 15
 
@@ -76,6 +76,7 @@ defmodule Report.ReporterTest do
 
   describe "Capitation report with custom data" do
     test "generate_csv/0" do
+      les = insert_list(3, :legal_entity)
       le = insert_list(3, :legal_entity)
       division = for _ <- 0..29, do: insert(:division, %{legal_entity_id: Enum.random(le).id})
       persons = insert_list(100, :person)
@@ -89,11 +90,15 @@ defmodule Report.ReporterTest do
             employee_id: Ecto.UUID.generate()
             })
       end)
-      Reporter.generate_billing()
+      Reporter.generate_billing(false)
       Reporter.generate_csv
-      data = CSV.decode(File.stream!("/tmp/capitation.csv"))
-      data = Enum.drop(data, 1)
-      assert length(data) == 9
+      data =
+        "/tmp/capitation.csv"
+        |> File.stream!()
+        |> CSV.decode()
+        |> Enum.to_list
+      assert length(data) == 18
+      assert data |> Enum.filter(fn {_, d} -> Enum.at(d, 0) in Enum.map(les, &(&1.edrpou)) end) |> length == 9
     end
 
     test "capitation/0" do

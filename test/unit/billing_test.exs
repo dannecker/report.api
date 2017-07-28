@@ -39,7 +39,8 @@ defmodule Report.BillingTest do
 
     test "get_billing_for_csv/0" do
       Repo.update_all(Billing, set: [billing_date: Timex.today])
-      assert length(Billings.get_billing_for_capitation()) == 15
+      {:ok, billings} = Repo.transaction(fn -> Billings.get_billing_for_capitation() |> Enum.to_list end)
+      assert length(billings) == 15
     end
 
     test "without any billings get_last_billing_date/0" do
@@ -71,7 +72,7 @@ defmodule Report.BillingTest do
   describe "Billing API with custom billing records" do
     test "get_billing_for_csv/0 with created billing" do
       le = insert_list(5, :legal_entity)
-      division = for _ <- 0..9, do: insert(:division, %{legal_entity_id: Enum.random(le).id})
+      division = for _ <- 0..50, do: insert(:division, %{legal_entity_id: Enum.random(le).id})
       persons = insert_list(100, :person)
       Enum.each(persons,
         fn p ->
@@ -83,9 +84,9 @@ defmodule Report.BillingTest do
             employee_id: Ecto.UUID.generate()
             })
       end)
-      Report.Reporter.generate_billing()
-      billing = Billings.get_billing_for_capitation()
-      assert length(billing) > 4
+      Report.Reporter.generate_billing(false)
+      {:ok, billing} = Repo.transaction(fn -> Billings.get_billing_for_capitation() |> Enum.to_list end)
+      assert length(billing) in 5..10
     end
   end
 end

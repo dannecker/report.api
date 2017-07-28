@@ -45,6 +45,10 @@ config :report_api, Report.Web.Endpoint,
   secret_key_base: "U6jv7YneKVixSMz0h4Z/W1P5gifuhS0rekLu2tuZRsZmE856L71BcjX18tNzZmVu",
   render_errors: [view: EView.Views.PhoenixError, accepts: ~w(json)]
 
+config :report_api, :gandalf,
+  url: {:system, "GANDALF_DECISION_URL", "http://localhost:4000"},
+  user: {:system, "GANDALF_USER", "test"},
+  password: {:system, "GANDALF_PASSWORD", "password"}
 # Configures Elixir's Logger
 config :logger, :console,
   format: "$time $metadata[$level] $message\n",

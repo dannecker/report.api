@@ -16,7 +16,7 @@ defmodule Report.Replica.Replicas do
   def stream_declarations_beetween(_from, _to) do
     declaration_query()
     |> preload_declaration_assoc()
-    |> Repo.stream(timeout: 120_000_000)
+    |> Repo.stream(timeout: 30_000)
   end
 
   def get_oldest_declaration_date do
@@ -34,12 +34,6 @@ defmodule Report.Replica.Replicas do
          where: d.status == "active",
          where: d.is_active,
          order_by: [desc: :inserted_at])
-  end
-
-  defp where_beetween(query, from, to) do
-    query
-    |> where([d], d.inserted_at >= ^from)
-    |> where([d], d.inserted_at <= ^to)
   end
 
   defp preload_declaration_assoc(query) do

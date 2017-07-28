@@ -143,7 +143,9 @@ defmodule Report.Factory do
       declaration_id: declaration.id,
       legal_entity_id: declaration.legal_entity_id,
       person_age: :rand.uniform(65),
-      mountain_group: Enum.at(["true", "false"], :rand.uniform(2) - 1)
+      mountain_group: Enum.at(["true", "false"], :rand.uniform(2) - 1),
+      compensation_group: "test",
+      decision_id: "id"
     }
   end
 
