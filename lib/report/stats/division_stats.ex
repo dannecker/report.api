@@ -1,6 +1,7 @@
 defmodule Report.Stats.DivisionStats do
   @moduledoc false
 
+  alias Geo.WKT
   alias Report.Repo
   alias Report.Replica.Division
   alias Report.Stats.DivisionsMapRequest
@@ -28,7 +29,7 @@ defmodule Report.Stats.DivisionStats do
       type: type,
       name: name} = request
 
-    polygon = Geo.WKT.encode(
+    polygon = WKT.encode(
       %Geo.Polygon{coordinates: [[
         {lefttop_latitude, lefttop_longitude},
         {lefttop_latitude, rightbottom_longitude},
