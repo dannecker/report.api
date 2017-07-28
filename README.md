@@ -2,7 +2,6 @@
 
 **TODO: Add description**
 
-
 # Phoenix App
 
 To start your Phoenix app:
