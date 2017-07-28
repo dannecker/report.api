@@ -3,6 +3,7 @@ defmodule Report.Web.StatsController do
 
   use Report.Web, :controller
 
+  alias Report.Stats.DivisionStats
   alias Report.Stats.MainStats
 
   action_fallback Report.Web.FallbackController
@@ -28,6 +29,12 @@ defmodule Report.Web.StatsController do
   def histogram(conn, params) do
     with {:ok, main_stats} <- MainStats.get_histogram_stats(params) do
       render(conn, "index.json", stats: main_stats)
+    end
+  end
+
+  def divisions_map(conn, params) do
+    with {:ok, map_stats} <- DivisionStats.get_map_stats(params) do
+      render(conn, "divisions_map.json", divisions: map_stats)
     end
   end
 end

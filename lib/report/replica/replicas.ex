@@ -3,6 +3,7 @@ defmodule Report.Replica.Replicas do
   Context module for working with Replica Schemas
   """
   import Ecto.Query
+  import Ecto.Query.API, only: [ilike: 2]
   alias Report.Replica.Declaration
   alias Report.Repo
 
@@ -51,10 +52,13 @@ defmodule Report.Replica.Replicas do
   end
 
   def params_query(query, params) when is_map(params) do
-    params = Enum.map(params, fn
-      ({key, value}) when is_bitstring(key) -> {String.to_atom(key), value}
-      ({key, value}) when is_atom(key) -> {key, value}
-    end)
+    params =
+      params
+      |> Enum.map(fn
+        ({key, value}) when is_bitstring(key) -> {String.to_atom(key), value}
+        ({key, value}) when is_atom(key) -> {key, value}
+      end)
+      |> Enum.filter(fn {k, v} -> !is_nil(v) end)
     where(query, ^params)
   end
 
@@ -80,6 +84,11 @@ defmodule Report.Replica.Replicas do
     query
     |> select([e], count(field(e, ^field_name)))
     |> Repo.one!
+  end
+
+  def ilike_query(query, _, nil), do: query
+  def ilike_query(query, field_name, value) do
+    where(query, [e], ilike(field(e, ^field_name), ^"%#{value}%"))
   end
 
   def add_date_query(query, %{"from" => from, "to" => to}), do: interval_query(query, from, to)

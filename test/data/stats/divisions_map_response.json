@@ -1,0 +1,47 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "properties": {
+    "data": {
+      "type": "array",
+      "items": {
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "addresses": {
+            "type": "array"
+          },
+          "phones": {
+            "type": "array"
+          },
+          "coordinates": {
+            "type": "object",
+            "items": {
+              "latitude": {
+                "type": "number"
+              },
+              "longitude": {
+                "type": "number"
+              }
+            }
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "type",
+          "addresses",
+          "phones",
+          "coordinates"
+        ]
+      }
+    }
+  }
+}

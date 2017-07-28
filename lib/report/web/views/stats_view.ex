@@ -28,6 +28,20 @@ defmodule Report.Web.StatsView do
     }
   end
 
+  def render("division_details.json", %{stats: division}) do
+    %{
+      "id" => division.id,
+      "name" => division.name,
+      "type" => division.type,
+      "addresses" => division.addresses,
+      "coordinates" => %{
+        "latitude" => elem(division.location.coordinates, 0),
+        "longitude" => elem(division.location.coordinates, 1),
+      },
+      "phones" => division.phones,
+    }
+  end
+
   def render("region.json", %{stats: region}) do
     %{
       "id" => region.id,
@@ -37,5 +51,9 @@ defmodule Report.Web.StatsView do
 
   def render("region.json", stats) do
     stats
+  end
+
+  def render("divisions_map.json", %{divisions: divisions}) do
+    render_many(divisions, __MODULE__, "division_details.json")
   end
 end
