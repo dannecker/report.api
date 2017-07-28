@@ -154,7 +154,7 @@ defmodule Report.Stats.MainStats do
           "declarations_closed" => closed,
           "declarations_active_start" => active_start,
           "declarations_active_end" => active_start + created - closed}
-        {List.replace_at(acc, i, new_value), value}
+        {List.replace_at(acc, i, new_value), new_value}
       end)
     skeleton
   end
@@ -172,17 +172,7 @@ defmodule Report.Stats.MainStats do
       step: interval_step(interval)
     )
     Enum.map(intervals, fn date ->
-      period_from = format_date(date)
-      period_to =
-        to_date
-        |> get_interval_to_date(interval)
-        |> format_date()
-
       %{
-        "period" => %{
-          "from" => period_from,
-          "to" => period_to
-        },
         "period_type" => interval,
         "period_name" => format_date(date, interval),
         "declarations_created" => 0,
