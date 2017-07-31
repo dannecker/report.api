@@ -2,12 +2,11 @@ defmodule Report.GandalfCaller do
   @moduledoc false
   require Logger
 
-  @config Confex.get_map(:report_api, :gandalf)
-
   def make_decision(params) do
+    config = Confex.get_map(:report_api, :gandalf)
     params
     |> Poison.encode!()
-    |> http_call(@config)
+    |> http_call(config)
     |> parse_resp()
   end
 

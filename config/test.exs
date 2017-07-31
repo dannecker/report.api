@@ -18,11 +18,6 @@ config :report_api, Report.Web.Endpoint,
   http: [port: 4001],
   server: true
 
-config :report_api, :gandalf,
-  url: {:system, "GANDALF_DECISION_URL", "http://localhost:4000"},
-  user: {:system, "GANDALF_USER", "test"},
-  password: {:system, "GANDALF_PASSWORD", "password"}
-
 # Run acceptance test in concurrent mode
 config :report_api, sql_sandbox: true
 config :logger, :console, format: "[$level] $message\n"

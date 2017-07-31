@@ -12,7 +12,7 @@ defmodule Report.ReporterTest do
     end
 
     test "generate_billing/0" do
-      Reporter.generate_billing(true)
+      Reporter.generate_billing()
       billings = Repo.all(Report.Billing)
       assert length(billings) == 15
 
@@ -90,7 +90,7 @@ defmodule Report.ReporterTest do
             employee_id: Ecto.UUID.generate()
             })
       end)
-      Reporter.generate_billing(false)
+      Reporter.generate_billing()
       Reporter.generate_csv
       data =
         "/tmp/capitation.csv"

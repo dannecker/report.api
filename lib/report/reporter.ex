@@ -9,8 +9,7 @@ defmodule Report.Reporter do
   alias Report.BillingProducer
 
   def capitation do
-    order = Confex.get(:report_api, :async_billing)
-    generate_billing(order)
+    generate_billing()
     generate_csv()
     file = File.read!("/tmp/capitation.csv")
     {:ok, public_url} =
@@ -20,7 +19,7 @@ defmodule Report.Reporter do
     log
   end
 
-  def generate_billing(async \\ false) do
+  def generate_billing do
     last_billing_datetime = Timex.to_datetime(Billings.get_last_billing_date())
     to_date =  Timex.to_datetime(Timex.shift(Timex.today(), hours: 24))
     Repo.transaction(fn ->

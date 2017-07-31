@@ -84,7 +84,7 @@ defmodule Report.BillingTest do
             employee_id: Ecto.UUID.generate()
             })
       end)
-      Report.Reporter.generate_billing(false)
+      Report.Reporter.generate_billing()
       {:ok, billing} = Repo.transaction(fn -> Billings.get_billing_for_capitation() |> Enum.to_list end)
       assert length(billing) in 5..10
     end
