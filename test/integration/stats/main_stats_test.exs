@@ -41,25 +41,23 @@ defmodule Report.Integration.MainStatsTest do
     } = main_stats
   end
 
-  test "get_regions_stats/1" do
-    %{"region" => region} = insert_fixtures()
-    region_id = region.id
+  test "get_regions_stats/0" do
+    insert_fixtures()
 
-    {:ok, main_stats} = MainStats.get_regions_stats(region_id)
+    {:ok, main_stats} = MainStats.get_regions_stats()
     schema =
       "test/data/stats/regions_stats_response.json"
       |> File.read!()
       |> Poison.decode!()
+
+    schema =
+      schema
+      |> Map.put("type", "array")
+      |> Map.put("items", schema["properties"]["data"]["items"])
+      |> Map.delete("properties")
     :ok = NExJsonSchema.Validator.validate(schema, main_stats)
 
-    assert %{
-      "region" => %{id: ^region_id},
-      "stats" => %{
-        "declarations" => 1,
-        "msps" => 1,
-        "doctors" => 2,
-      }
-    } = main_stats
+    assert 2 == Enum.count(main_stats)
   end
 
   test "get_histogram_stats/1" do

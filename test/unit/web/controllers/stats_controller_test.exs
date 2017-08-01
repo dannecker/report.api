@@ -29,16 +29,16 @@ defmodule Report.Web.StatsControllerTest do
   end
 
   test "get regions stats", %{conn: conn} do
-    assert_raise(Ecto.NoResultsError, fn ->
-      get conn, stats_path(conn, :region, Ecto.UUID.generate())
-    end)
-
-    region = insert(:region)
-    conn = get conn, stats_path(conn, :region, region.id)
     schema =
       "test/data/stats/regions_stats_response.json"
       |> File.read!()
       |> Poison.decode!()
+
+    conn = get conn, stats_path(conn, :regions)
+    :ok = NExJsonSchema.Validator.validate(schema, json_response(conn, 200))
+
+    insert(:region)
+    conn = get conn, stats_path(conn, :regions)
     :ok = NExJsonSchema.Validator.validate(schema, json_response(conn, 200))
   end
 

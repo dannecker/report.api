@@ -3,82 +3,84 @@
   "type": "object",
   "properties": {
     "data": {
-      "type": "object",
-      "properties": {
-        "from_date": {
-          "type": "string"
-        },
-        "to_date": {
-          "type": "string"
-        },
-        "regions": {
-          "type": "array",
-          "items": {
-            "properties": {
-              "region": {
-                "type": "object",
-                "properties": {
-                  "id": {
-                    "type": "string"
-                  },
-                  "name": {
-                    "type": "string"
+      "type": "array",
+      "items": {
+        "properties": {
+          "from_date": {
+            "type": "string"
+          },
+          "to_date": {
+            "type": "string"
+          },
+          "regions": {
+            "type": "array",
+            "items": {
+              "properties": {
+                "region": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    }
                   }
+                },
+                "period": {
+                  "type": "object",
+                  "properties": {
+                    "declarations_total": {
+                      "type": "number"
+                    },
+                    "declarations_created": {
+                      "type": "number"
+                    },
+                    "declarations_closed": {
+                      "type": "number"
+                    },
+                    "msps": {
+                      "type": "number"
+                    },
+                    "doctors": {
+                      "type": "number"
+                    }
+                  },
+                  "required": [
+                    "declarations_total",
+                    "declarations_created",
+                    "declarations_closed",
+                    "msps",
+                    "doctors"
+                  ]
+                },
+                "total": {
+                  "type": "object",
+                  "properties": {
+                    "declarations_total": {
+                      "type": "number"
+                    },
+                    "declarations_created": {
+                      "type": "number"
+                    },
+                    "declarations_closed": {
+                      "type": "number"
+                    },
+                    "msps": {
+                      "type": "number"
+                    },
+                    "doctors": {
+                      "type": "number"
+                    }
+                  },
+                  "required": [
+                    "declarations_total",
+                    "declarations_created",
+                    "declarations_closed",
+                    "msps",
+                    "doctors"
+                  ]
                 }
-              },
-              "period": {
-                "type": "object",
-                "properties": {
-                  "declarations_total": {
-                    "type": "number"
-                  },
-                  "declarations_created": {
-                    "type": "number"
-                  },
-                  "declarations_closed": {
-                    "type": "number"
-                  },
-                  "msps": {
-                    "type": "number"
-                  },
-                  "doctors": {
-                    "type": "number"
-                  }
-                },
-                "required": [
-                  "declarations_total",
-                  "declarations_created",
-                  "declarations_closed",
-                  "msps",
-                  "doctors"
-                ]
-              },
-              "total": {
-                "type": "object",
-                "properties": {
-                  "declarations_total": {
-                    "type": "number"
-                  },
-                  "declarations_created": {
-                    "type": "number"
-                  },
-                  "declarations_closed": {
-                    "type": "number"
-                  },
-                  "msps": {
-                    "type": "number"
-                  },
-                  "doctors": {
-                    "type": "number"
-                  }
-                },
-                "required": [
-                  "declarations_total",
-                  "declarations_created",
-                  "declarations_closed",
-                  "msps",
-                  "doctors"
-                ]
               }
             }
           }

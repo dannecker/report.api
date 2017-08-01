@@ -14,7 +14,11 @@ defmodule Report.Web.StatsView do
     }
   end
 
-  def render("index.json", %{"region" => region, "stats" => stats}) do
+  def render("regions.json", %{stats: regions}) when is_list(regions) do
+    render_many(regions, __MODULE__, "region_stat.json")
+  end
+
+  def render("region_stat.json", %{stats: %{"region" => region, "stats" => stats}}) do
     %{
       "region" => render_one(region, __MODULE__, "region.json"),
       "stats" => render_one(stats, __MODULE__, "index.json")
