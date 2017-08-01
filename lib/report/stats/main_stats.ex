@@ -70,38 +70,14 @@ defmodule Report.Stats.MainStats do
     }}
   end
 
-  def get_regions_stats(id) do
-    region = Repo.get!(Region, id)
-
-    param = [%{"type" => "REGISTRATION", "area" => region.name}]
-    msps =
-      LegalEntity
-      |> params_query(legal_entity_params())
-      |> where([le], fragment("? @> ?", le.addresses, ^param))
-      |> count_query()
-
-    doctors =
-      Employee
-      |> params_query(doctor_params())
-      |> join(:left, [e], le in assoc(e, :legal_entity))
-      |> where([e, le], fragment("? @> ?", le.addresses, ^param))
-      |> count_query()
-
-    declarations =
-      Declaration
-      |> params_query(%{"status" => "active"})
-      |> join(:left, [d], dv in assoc(d, :division))
-      |> where([d, dv], fragment("? @> ?", dv.addresses, ^param))
-      |> count_query()
-
-    {:ok, %{
-      "region" => region,
-      "stats" => %{
-        "declarations" => declarations,
-        "doctors" => doctors,
-        "msps" => msps
-      }
-    }}
+  def get_regions_stats do
+    with skeleton <- regions_stats_skeleton(Repo.all(Region)),
+         skeleton <- add_to_regions_skeleton(msps_by_regions(), ["stats", "msps"], skeleton),
+         skeleton <- add_to_regions_skeleton(doctors_by_regions(), ["stats", "doctors"], skeleton),
+         skeleton <- add_to_regions_skeleton(declarations_by_regions(), ["stats", "declarations"], skeleton)
+    do
+      {:ok, Map.values(skeleton)}
+    end
   end
 
   def get_histogram_stats(params) do
@@ -183,6 +159,61 @@ defmodule Report.Stats.MainStats do
     end)
   end
 
+  defp regions_stats_skeleton(regions) do
+    Enum.into(regions, %{}, fn region ->
+      {region.name, %{
+        "region" => region,
+        "stats" => %{
+          "declarations" => 0,
+          "doctors" => 0,
+          "msps" => 0
+        }
+      }}
+    end)
+  end
+
+  defp msps_by_regions do
+    LegalEntity
+    |> params_query(legal_entity_params())
+    |> where([le], fragment("? @> ?", le.addresses, ^[%{"type" => "REGISTRATION"}]))
+    |> select([le], %{address: fragment("jsonb_array_elements(?)", le.addresses)})
+    |> subquery()
+    |> group_by([a], fragment("?->>'area'", a.address))
+    |> select([a], %{region: fragment("?->>'area'", a.address), count: count(a.address)})
+    |> Repo.all
+  end
+
+  defp doctors_by_regions do
+    LegalEntity
+    |> params_query(legal_entity_params())
+    |> where([le], fragment("? @> ?", le.addresses, ^[%{"type" => "REGISTRATION"}]))
+    |> select([le], %{address: fragment("jsonb_array_elements(?)", le.addresses)})
+    |> subquery()
+    |> group_by([a], fragment("?->>'area'", a.address))
+    |> select([a], %{region: fragment("?->>'area'", a.address), count: count(a.address)})
+    |> Repo.all
+  end
+
+  defp declarations_by_regions do
+    Declaration
+    |> params_query(%{"status" => "active"})
+    |> join(:left, [d], dv in assoc(d, :division))
+    |> where([d, dv], fragment("? @> ?", dv.addresses, ^[%{"type" => "REGISTRATION"}]))
+    |> select([d, dv], %{address: fragment("jsonb_array_elements(?)", dv.addresses)})
+    |> subquery()
+    |> group_by([a], fragment("?->>'area'", a.address))
+    |> select([a], %{region: fragment("?->>'area'", a.address), count: count(a.address)})
+    |> Repo.all
+  end
+
+  defp add_to_regions_skeleton(data, keys, skeleton) do
+    Enum.reduce(data, skeleton, fn %{count: count, region: region_name}, acc ->
+      if Map.has_key?(acc, region_name),
+        do: put_in(acc, [region_name | keys], count),
+        else: acc
+    end)
+  end
+
   defp active_declarations_by_date(date) do
     DeclarationStatusHistory
     |> lt_date_query(date)
@@ -210,19 +241,6 @@ defmodule Report.Stats.MainStats do
 
   defp legal_entity_params, do: %{"is_active" => true}
 
-  defp get_interval_to_date(date, "DAY"), do: date
-  defp get_interval_to_date(date, "MONTH") do
-    date
-    |> Timex.end_of_month()
-    |> get_interval_to_date(HistogramStatsRequest.interval(:day))
-  end
-  defp get_interval_to_date(date, "YEAR") do
-    date
-    |> Timex.end_of_year()
-    |> get_interval_to_date(HistogramStatsRequest.interval(:day))
-  end
-
-  defp format_date(date), do: format_date(date, HistogramStatsRequest.interval(:day))
   defp format_date(date, "DAY"), do: Timex.format!(date, "%F", :strftime)
   defp format_date(date, "MONTH"), do: Timex.format!(date, "%Y-%m", :strftime)
   defp format_date(date, "YEAR"), do: Timex.format!(date, "%Y", :strftime)
