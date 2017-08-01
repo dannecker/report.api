@@ -11,7 +11,7 @@ defmodule Report.GandalfCaller do
   end
 
   defp http_call(body, config) do
-    case :hackney.post(config[:url], headers(config), body, [:with_body]) do
+    case :hackney.post(config[:url], headers(config), body, [{:connect_timeout, 30_000}, :with_body]) do
       {:ok, status, _headers, response} when status > 299 ->
         Logger.error fn -> "#{config[:url]}, #{body}, #{response}" end
         raise response
