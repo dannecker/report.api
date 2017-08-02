@@ -40,7 +40,7 @@ defmodule Report.Stats.DivisionStats do
     )
 
     Division
-    |> params_query(%{"type" => type})
+    |> params_query(%{"type" => type, "status" => "ACTIVE", "is_active" => true})
     |> ilike_query(:name, name)
     |> where([d], fragment("ST_Intersects(?, ST_GeomFromText(?))", d.location, ^polygon))
     |> Repo.all

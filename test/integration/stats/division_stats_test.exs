@@ -27,11 +27,16 @@ defmodule Report.Integration.DivisionStatsTest do
 
   defp insert_fixtures do
     legal_entity = insert(:legal_entity)
-    division = insert(:division,
+    params = [
       legal_entity_id: legal_entity.id,
       location: %Geo.Point{coordinates: {30.1233, 50.32423}},
-      type: DivisionsMapRequest.type(:clinic)
-    )
+      type: DivisionsMapRequest.type(:clinic),
+      status: "ACTIVE",
+      is_active: true,
+      name: "test name",
+    ]
+    division = insert(:division, params)
+    insert(:division, Keyword.put(params, :is_active, false))
     %{
       "division" => division,
       "legal_entity" => legal_entity,
