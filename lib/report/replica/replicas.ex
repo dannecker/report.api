@@ -3,7 +3,6 @@ defmodule Report.Replica.Replicas do
   Context module for working with Replica Schemas
   """
   import Ecto.Query
-  import Ecto.Query.API, only: [ilike: 2]
   alias Report.Replica.Declaration
   alias Report.Repo
 
