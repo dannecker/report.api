@@ -18,8 +18,16 @@
           "addresses": {
             "type": "array"
           },
-          "phones": {
-            "type": "array"
+          "contacts": {
+            "type": "object",
+            "properties": {
+              "email": {
+                "type": "string"
+              },
+              "phones": {
+                "type": "array"
+              }
+            }
           },
           "coordinates": {
             "type": "object",
@@ -38,7 +46,7 @@
           "name",
           "type",
           "addresses",
-          "phones",
+          "contacts",
           "coordinates"
         ]
       }

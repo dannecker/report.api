@@ -42,7 +42,10 @@ defmodule Report.Web.StatsView do
         "latitude" => elem(division.location.coordinates, 0),
         "longitude" => elem(division.location.coordinates, 1),
       },
-      "phones" => division.phones,
+      "contacts" => %{
+        "email" => division.email,
+        "phones" => division.phones,
+      }
     }
   end
 
