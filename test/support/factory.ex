@@ -11,6 +11,8 @@ defmodule Report.Factory do
   alias Report.Replica.Region
   alias Report.Billing
   alias Report.ReportLog
+  alias Report.RedMSP
+  alias Report.RedMSPTerritory
 
   def declaration_factory do
     start_date = Faker.NaiveDateTime.forward(1)
@@ -100,7 +102,18 @@ defmodule Report.Factory do
 
   def person_factory do
     %Person{
-      birth_date: Faker.Date.date_of_birth(19..70)
+      birth_date: Faker.Date.date_of_birth(19..70),
+      addresses: [
+        %{"zip": "02090", "area": "ЛЬВІВСЬКА", "type": "REGISTRATION",
+        "region": "ПУСТОМИТІВСЬКИЙ", "street": "Ніжинська", "country": "UA", "building": "15", "apartment": "23",
+        "settlement": "СОРОКИ-ЛЬВІВСЬКІ",
+        "street_type": "STREET",
+        "settlement_id": "707dbc55-cb6b-4aaa-97c1-2a1e03476100", "settlement_type": "CITY"},
+        %{"zip": "02090", "area": "ЛЬВІВСЬКА", "type": "RESIDENCE", "region": "ПУСТОМИТІВСЬКИЙ",
+        "street": "Ніжинська", "country": "UA", "building": "15", "apartment": "23",
+        "settlement": "СОРОКИ-ЛЬВІВСЬКІ", "street_type": "STREET",
+        "settlement_id": "707dbc55-cb6b-4aaa-97c1-2a1e03476100", "settlement_type": "CITY"}
+      ]
     }
   end
 
@@ -159,6 +172,26 @@ defmodule Report.Factory do
   def region_factory do
     %Region{
       name: "ЛЬВІВСЬКА"
+    }
+  end
+
+  def red_msp_territory_factory do
+    %RedMSPTerritory{
+      settlement_id: Ecto.UUID.generate,
+      street_type: "street",
+      street_name: Faker.Address.street_name,
+      postal_code: Faker.Address.zip,
+      buildings: "1,2,3",
+      red_msp: build(:red_msp)
+    }
+  end
+
+  def red_msp_factory do
+    %RedMSP{
+      name: Faker.App.name,
+      edrpou: sequence(:edrpou, &"2007772#{&1}"),
+      type: "general",
+      population_count: :rand.uniform(10000)
     }
   end
 end

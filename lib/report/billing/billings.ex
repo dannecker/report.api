@@ -9,6 +9,9 @@ defmodule Report.Billings do
   alias Report.Replica.Declaration
   alias Report.Replica.LegalEntity
   alias Report.GandalfCaller
+  alias Report.RedLists
+
+  @maturity_age Confex.get(:report_api, :maturity_age)
 
   def get_last_billing_date do
     Billing
@@ -48,6 +51,7 @@ defmodule Report.Billings do
     |> put_mountain_group(division)
     |> put_person_age(person)
     |> put_decision()
+    |> put_red_msp(person)
   end
 
   defp put_mountain_group(billing_chset, division) do
@@ -56,6 +60,53 @@ defmodule Report.Billings do
 
   defp put_decision(billing_chset) do
     make_decision(billing_chset)
+  end
+
+  defp put_red_msp(billing_chset, person) do
+    %{"settlement_id" => settlement_id, "street" => street_name, "building" => building} =
+      person.addresses
+      |> Enum.filter(fn a -> a["type"] == "REGISTRATION" end)
+      |> List.first
+    red_msp_id = find_msp_territory(billing_chset, settlement_id, street_name, building)
+    put_change(billing_chset, :red_msp_id, red_msp_id)
+  end
+
+  defp find_msp_territory(billing_chset, settlement_id, street_name, building) do
+    red_list = RedLists.find_msp_territory(settlement_id, street_name, building)
+    case length(red_list) do
+      0 ->
+        maybe_one_division_in_settlement(settlement_id)
+      1 ->
+        red_list
+        |> List.first()
+        |> Map.get(:red_msp_id)
+      list_length when list_length > 1 ->
+        maybe_child(billing_chset, red_list)
+    end
+  end
+
+  defp maybe_one_division_in_settlement(settlement_id) do
+    red_list = RedLists.find_msp_territory(settlement_id)
+    case length(red_list) do
+      0 ->
+        nil
+      1 ->
+        red_list
+        |> List.first()
+        |> Map.get(:red_msp_id)
+      list_length when list_length > 1 ->
+        red_list
+        |> Enum.find(nil, fn mspt -> mspt.street_name == nil end)
+        |> Map.get(:red_msp_id)
+    end
+  end
+
+  defp maybe_child(%Ecto.Changeset{changes: changes}, red_list) do
+    if changes.person_age < @maturity_age do
+      RedLists.find_msp_by_type(red_list, "child")
+    else
+      RedLists.find_msp_by_type(red_list, "general")
+    end
   end
 
   defp make_decision(billing_chset) do

@@ -14,4 +14,9 @@ defmodule Report.FactoryTest do
     assert declaration.employee_id == Repo.one(Report.Replica.Employee).id
     assert declaration.legal_entity_id == Repo.one(Report.Replica.LegalEntity).id
   end
+
+  test "red_msp_territory factory works" do
+    rmt = insert(:red_msp_territory)
+    refute is_nil(rmt.red_msp_id)
+  end
 end

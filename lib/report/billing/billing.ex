@@ -10,6 +10,7 @@ defmodule Report.Billing do
     belongs_to :declaration, Report.Replica.Declaration, type: Ecto.UUID
     belongs_to :legal_entity, Report.Replica.LegalEntity, type: Ecto.UUID
     belongs_to :division, Report.Replica.Division, type: Ecto.UUID
+    belongs_to :red_msp, Report.RedMSP, type: Ecto.UUID
     field :mountain_group, :boolean, null: false
     field :person_age, :integer, null: false
     field :compensation_group, :string, null: false

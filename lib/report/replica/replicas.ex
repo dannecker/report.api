@@ -51,7 +51,7 @@ defmodule Report.Replica.Replicas do
         ({key, value}) when is_bitstring(key) -> {String.to_atom(key), value}
         ({key, value}) when is_atom(key) -> {key, value}
       end)
-      |> Enum.filter(fn {k, v} -> !is_nil(v) end)
+      |> Enum.filter(fn {_k, v} -> !is_nil(v) end)
     where(query, ^params)
   end
 

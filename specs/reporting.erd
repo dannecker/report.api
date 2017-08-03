@@ -152,9 +152,7 @@ id | uuid | not null
 name | varchar | not null
 edrpou | varchar(8) | not null unique
 inserted_at | timestamp | not null
-inserted_by | uuid | not null
 updated_at | timestamp
-updated_by | uuid | not null
 is_active | boolean | not null
 type | enum('child','general') | not null
 population_count | integer| not null
@@ -165,8 +163,8 @@ red_msp_id | uuid | not null
 settlement_id | uuid | not null
 street_type | VARCHAR(250)
 street_name | VARCHAR(250)
-index | VARCHAR(5)
-houses| VARCHAR(2000)
+postal_code | VARCHAR(5)
+buildings   | VARCHAR(2000)
 
 
 employees 1--* declarations
