@@ -5,6 +5,7 @@ defmodule Report.Repo do
   More info: https://hexdocs.pm/ecto/Ecto.Repo.html
   """
   use Ecto.Repo, otp_app: :report_api
+  alias Confex.Resolver
 
   @doc """
   Dynamically loads the repository configuration from the environment variables.
@@ -14,7 +15,7 @@ defmodule Report.Repo do
     config =
       if url,
         do: Keyword.merge(config, Ecto.Repo.Supervisor.parse_url(url)),
-      else: Confex.process_env(config)
+      else: Resolver.resolve!(config)
 
     unless config[:database] do
       raise "Set DB_NAME environment variable!"

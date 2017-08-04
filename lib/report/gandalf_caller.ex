@@ -3,7 +3,7 @@ defmodule Report.GandalfCaller do
   require Logger
 
   def make_decision(params) do
-    config = Confex.get_map(:report_api, :gandalf)
+    config = Confex.get_env(:report_api, :gandalf)
     params
     |> Poison.encode!()
     |> http_call(config)

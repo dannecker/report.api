@@ -67,7 +67,7 @@ defmodule Report.ReleaseTasks do
     do: Path.join([priv_dir(app), "repo", "seeds.exs"])
 
   def setup_pg_logical! do
-    pg_logical = Confex.get(:report_api, :pg_logical_node)
+    pg_logical = Confex.get_env(:report_api, :pg_logical_node)
     Runner.execute "SELECT pglogical.create_node(
     node_name := ‘subscriber’,
     dsn := ‘#{pg_logical[:dsn]}’);"
