@@ -33,7 +33,7 @@ defmodule Report.Web.Endpoint do
   It receives the endpoint configuration from the config files
   and must return the updated configuration.
   """
-  def load_from_system_env(config) do
+  def init(_key, config) do
     config = Resolver.resolve!(config)
 
     unless config[:secret_key_base] do

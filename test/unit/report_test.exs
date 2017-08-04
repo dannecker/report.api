@@ -11,7 +11,7 @@ defmodule ReportTest do
     assert {:ok, [
       my_conf: "test_env_value",
       other_conf: "persisted"
-    ]} == Report.load_from_system_env([my_conf: {:system, "MY_TEST_ENV"}, other_conf: "persisted"])
+    ]} == Report.init(nil, [my_conf: {:system, "MY_TEST_ENV"}, other_conf: "persisted"])
   end
 
   describe "configure_log_level/1" do

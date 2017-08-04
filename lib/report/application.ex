@@ -50,9 +50,7 @@ defmodule Report do
     do: raise ArgumentError, "LOG_LEVEL environment should have one of 'debug', 'info', 'warn', 'error' values," <>
                              "got: #{inspect level}"
 
-  # Loads configuration in `:on_init` callbacks and replaces `{:system, ..}` tuples via Confex
+  # Loads configuration in `:init` callbacks and replaces `{:system, ..}` tuples via Confex
   @doc false
-  def load_from_system_env(config) do
-    {:ok, Resolver.resolve!(config)}
-  end
+  def init(_key, config), do: {:ok, Resolver.resolve!(config)}
 end
