@@ -63,11 +63,16 @@ defmodule Report.Billings do
   end
 
   defp put_red_msp(billing_chset, person) do
-    %{"settlement_id" => settlement_id, "street" => street_name, "building" => building} =
-      person.addresses
-      |> Enum.filter(fn a -> a["type"] == "REGISTRATION" end)
-      |> List.first
-    red_msp_id = find_msp_territory(billing_chset, settlement_id, street_name, building)
+    red_msp_id =
+      if RedLists.person_already_found_in_red_lists?(person.id) do
+        %{"settlement_id" => settlement_id, "street" => street_name, "building" => building} =
+        person.addresses
+        |> Enum.filter(fn a -> a["type"] == "REGISTRATION" end)
+        |> List.first
+        find_msp_territory(billing_chset, settlement_id, street_name, building)
+      else
+        nil
+      end
     put_change(billing_chset, :red_msp_id, red_msp_id)
   end
 
@@ -135,6 +140,13 @@ defmodule Report.Billings do
     date
     |> get_legal_entities_for_csv()
     |> Repo.stream(timeout: :infinity)
+  end
+
+  def count_billing_by_red_edrpou(edrpou) do
+    from b in Billing,
+    join: msp in RedMSP, on: b.red_msp_id == msp.id,
+    where: msp.edrpou == ^edrpou,
+    group_by: msp.id
   end
 
   def get_legal_entities_for_csv(billing_date) do

@@ -93,7 +93,6 @@ defmodule Report.BillingTest do
     end
     test "billings matches with red_msps" do
       Report.Reporter.generate_billing()
-
       Billing
       |> Repo.all
       |> Enum.each(fn b -> assert b.red_msp_id end)
@@ -120,6 +119,11 @@ defmodule Report.BillingTest do
 
     test "billings matches with red_msps and selects red_msp_territory where street_name is nil", %{rmt: rmt} do
       rmt |> Ecto.Changeset.change(street_name: nil) |> Repo.update!
+      insert(:red_msp_territory, %{
+          settlement_id: rmt.settlement_id,
+          street_name: "TEST",
+          buildings: rmt.buildings
+      })
       Report.Reporter.generate_billing()
       Billing
       |> Repo.all()
