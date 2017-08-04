@@ -11,7 +11,7 @@ defmodule Report.Billings do
   alias Report.GandalfCaller
   alias Report.RedLists
 
-  @maturity_age Confex.get(:report_api, :maturity_age)
+  @maturity_age Confex.get_env(:report_api, :maturity_age)
 
   def get_last_billing_date do
     Billing

@@ -3,6 +3,7 @@ defmodule Report.Web.Endpoint do
   Phoenix Endpoint for report application.
   """
   use Phoenix.Endpoint, otp_app: :report_api
+  alias Confex.Resolver
 
   # Allow acceptance tests to run in concurrent mode
   if Application.get_env(:report_api, :sql_sandbox) do
@@ -33,7 +34,7 @@ defmodule Report.Web.Endpoint do
   and must return the updated configuration.
   """
   def load_from_system_env(config) do
-    config = Confex.process_env(config)
+    config = Resolver.resolve!(config)
 
     unless config[:secret_key_base] do
       raise "Set SECRET_KEY environment variable!"
