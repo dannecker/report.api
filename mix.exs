@@ -58,7 +58,7 @@ defmodule Report.Mixfile do
      {:postgrex, "~> 0.13.2"},
      {:cowboy, "~> 1.1"},
      {:httpoison, "~> 0.11.1"},
-     {:phoenix, "~> 1.3.0-rc"},
+     {:phoenix, "~> 1.3.0"},
      {:multiverse, "~> 0.4.3"},
      {:eview, "~> 0.12.0"},
      {:phoenix_ecto, "~> 3.2"},
