@@ -1,4 +1,6 @@
 {:ok, _} = Application.ensure_all_started(:ex_machina)
+
+
 ExUnit.configure(exclude: [pending: true])
 ExUnit.start()
 Ecto.Adapters.SQL.Sandbox.mode(Report.Repo, :manual)
@@ -26,3 +28,4 @@ defmodule GandalfMockServer do
   end
 end
 {:ok, _} = Plug.Adapters.Cowboy.http GandalfMockServer, [], port: 4000
+{:ok, _} = Plug.Adapters.Cowboy.http Report.MockServer, [], port: Confex.fetch_env!(:report_api, :mock)[:port]

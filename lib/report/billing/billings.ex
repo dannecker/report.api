@@ -10,8 +10,11 @@ defmodule Report.Billings do
   alias Report.Replica.LegalEntity
   alias Report.GandalfCaller
   alias Report.RedLists
+  alias Report.MediaStorage
 
   @maturity_age Confex.get_env(:report_api, :maturity_age)
+  @declarations_bucket Confex.fetch_env!(:report_api, Report.MediaStorage)[:declarations_bucket]
+  @validate_signed_content Confex.get_env(:report_api, :validate_signed_content, false)
 
   def get_last_billing_date do
     Billing
@@ -52,6 +55,7 @@ defmodule Report.Billings do
     |> put_person_age(person)
     |> put_decision()
     |> put_red_msp(person)
+    |> put_is_valid(declaration, @validate_signed_content)
   end
 
   defp put_mountain_group(billing_chset, division) do
@@ -75,6 +79,17 @@ defmodule Report.Billings do
       end
     put_change(billing_chset, :red_msp_id, red_msp_id)
   end
+
+  def put_is_valid(changeset, %{id: id} = declaration, true) do
+    with {:ok, %{"data" => %{"secret_url" => url}}} <- get_signed_declaration_url(id),
+         {:ok, %{"data" => %{"is_valid" => is_valid}}} <- validate_declaration(declaration, url)
+    do
+      put_change(changeset, :is_valid, is_valid)
+    else
+      _ -> put_change(changeset, :is_valid, false)
+    end
+  end
+  def put_is_valid(changeset, _, false), do: changeset
 
   defp find_msp_territory(billing_chset, settlement_id, street_name, building) do
     red_list = RedLists.find_msp_territory(settlement_id, street_name, building)
@@ -166,5 +181,22 @@ defmodule Report.Billings do
       fragment(~s(sum\(case when person_age>39 and person_age<65 then 1 else 0 end\) as "40-64")),
       fragment(~s(sum\(case when person_age>64 then 1 else 0 end\) as ">65"))
     ]
+  end
+
+  defp get_signed_declaration_url(id) do
+    MediaStorage.create_signed_url("GET", @declarations_bucket, "signed_content", id)
+  end
+
+  defp validate_declaration(declaration, url) do
+    MediaStorage.validate_signed_entity(%{
+      "url" => url,
+      "rules" => [
+        %{
+          "field" => ["legal_entity", "edrpou"],
+          "type" => "eq",
+          "value" => declaration.legal_entity.edrpou,
+        },
+      ]
+    })
   end
 end
