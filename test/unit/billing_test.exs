@@ -1,6 +1,6 @@
 defmodule Report.BillingTest do
   @moduledoc false
-  use Report.DataCase, async: true
+  use Report.DataCase, async: false
   import Report.Factory
   alias Report.Billings
   alias Report.Billing

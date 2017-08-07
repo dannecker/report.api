@@ -12,10 +12,10 @@ defmodule Report.Replica.Replicas do
     |> Repo.all
   end
 
-  def stream_declarations_beetween(_from, _to) do
+  def declarations_with_assocs(page) do
     declaration_query()
     |> preload_declaration_assoc()
-    |> Repo.stream(timeout: :infinity)
+    |> Repo.paginate(page)
   end
 
   def get_oldest_declaration_date do
