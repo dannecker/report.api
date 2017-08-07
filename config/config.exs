@@ -34,6 +34,8 @@ config :report_api, Report.Repo,
   password: {:system, "DB_PASSWORD", "postgres"},
   hostname: {:system, "DB_HOST", "localhost"},
   port: {:system, :integer, "DB_PORT", 5432},
+  ownership_timeout: :infinity,
+  pool_size: 20,
   types: Report.PostgresTypes
 # This configuration file is loaded before any dependency and
 # is restricted to this project.

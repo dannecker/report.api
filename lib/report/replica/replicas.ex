@@ -15,7 +15,7 @@ defmodule Report.Replica.Replicas do
   def stream_declarations_beetween(_from, _to) do
     declaration_query()
     |> preload_declaration_assoc()
-    |> Repo.stream(timeout: 30_000)
+    |> Repo.stream(timeout: :infinity)
   end
 
   def get_oldest_declaration_date do

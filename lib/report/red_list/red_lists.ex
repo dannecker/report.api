@@ -54,10 +54,11 @@ defmodule Report.RedLists do
   end
 
   def get_red_msp_by_edrpou(edrpou) do
-    q = from msp in RedMSP,
-    where: msp.edrpou == ^edrpou,
-    group_by: msp.id,
-    select: [msp.id, msp.population_count]
-    Repo.all(q)
+    query =
+      from msp in RedMSP,
+      where: msp.edrpou == ^edrpou,
+      group_by: msp.id,
+      select: [msp.id, msp.population_count]
+    Repo.all(query)
   end
 end

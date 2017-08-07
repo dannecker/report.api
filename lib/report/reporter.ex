@@ -27,7 +27,7 @@ defmodule Report.Reporter do
       |> Replicas.stream_declarations_beetween(to_date)
       |> Stream.each(fn billing -> Billings.create_billing(billing) end)
       |> Stream.run
-    end, timeout: 120_000)
+    end, timeout: :infinity)
   end
 
   def generate_csv do
@@ -42,7 +42,7 @@ defmodule Report.Reporter do
       |> CSV.encode()
       |> Stream.into(file)
       |> Stream.run
-    end, timeout: 120_000)
+    end, timeout: :infinity)
   end
 
   defp insert_header(row, count, header) do
