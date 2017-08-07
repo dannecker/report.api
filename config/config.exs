@@ -44,6 +44,7 @@ config :report_api, Report.Repo,
 # Configures the endpoint
 config :report_api, Report.Web.Endpoint,
   url: [host: "localhost"],
+  load_from_system_env: true,
   secret_key_base: "U6jv7YneKVixSMz0h4Z/W1P5gifuhS0rekLu2tuZRsZmE856L71BcjX18tNzZmVu",
   render_errors: [view: EView.Views.PhoenixError, accepts: ~w(json)]
 
@@ -61,7 +62,7 @@ config :logger, :console,
 
 # Configure JSON Logger back-end
 config :logger_json, :backend,
-  on_init: {Report, :load_from_system_env, []},
+  load_from_system_env: true,
   json_encoder: Poison,
   metadata: :all
 
