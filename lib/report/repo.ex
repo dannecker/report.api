@@ -5,6 +5,7 @@ defmodule Report.Repo do
   More info: https://hexdocs.pm/ecto/Ecto.Repo.html
   """
   use Ecto.Repo, otp_app: :report_api
+  use Scrivener, page_size: 10
   alias Confex.Resolver
 
   @doc """

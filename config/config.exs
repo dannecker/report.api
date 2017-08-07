@@ -54,7 +54,8 @@ config :report_api, :gandalf,
   password: {:system, "GANDALF_PASSWORD", "password"}
 
 config :report_api,
-  maturity_age: {:system, :integer, "MATURITY_AGE", 18}
+  maturity_age: {:system, :integer, "MATURITY_AGE", 18},
+  async_billing: true
 # Configures Elixir's Logger
 config :logger, :console,
   format: "$time $metadata[$level] $message\n",

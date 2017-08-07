@@ -8,6 +8,8 @@ defmodule Report.Reporter do
   alias Report.ReportLogs
   alias Report.RedLists
 
+  @async_billing Confex.get_env(:report_api, :async_billing)
+
   def capitation do
     generate_billing()
     generate_csv()
@@ -20,14 +22,33 @@ defmodule Report.Reporter do
   end
 
   def generate_billing do
-    last_billing_datetime = Timex.to_datetime(Billings.get_last_billing_date())
-    to_date =  Timex.to_datetime(Timex.shift(Timex.today(), hours: 24))
-    Repo.transaction(fn ->
-      last_billing_datetime
-      |> Replicas.stream_declarations_beetween(to_date)
-      |> Stream.each(fn billing -> Billings.create_billing(billing) end)
-      |> Stream.run
-    end, timeout: :infinity)
+    Stream.run(
+      Stream.resource(fn -> Replicas.declarations_with_assocs(page: 1, page_size: 500) end,
+                    fn collection ->
+                      collection
+                      |> process_billing(@async_billing)
+                      if collection.total_pages <= collection.page_number do
+                        {:halt, []}
+                      else
+                        Replicas.declarations_with_assocs(page: collection.page_number, page_size: 500)
+                      end
+                    end,
+                    fn _ -> nil end
+                    )
+    )
+  end
+
+  def process_billing(collection, async \\ false)
+  def process_billing(collection, true) do
+    collection
+    |> Flow.from_enumerable()
+    |> Flow.partition()
+    |> Flow.each(fn item -> Billings.create_billing(item) end)
+    |> Flow.run()
+  end
+  def process_billing(collection, false) do
+    collection
+    |> Enum.each(fn item -> Billings.create_billing(item) end)
   end
 
   def generate_csv do

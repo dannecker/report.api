@@ -25,7 +25,7 @@ defmodule Report.Mixfile do
   # Type "mix help compile.app" for more information
   def application do
     [extra_applications: [:logger, :confex, :runtime_tools, :poison, :logger_json,
-                          :ecto, :postgrex, :cowboy,
+                          :ecto, :postgrex, :cowboy, :scrivener_ecto,
                           :httpoison, :phoenix,
                           :multiverse, :eview,
                           :phoenix_ecto, :jvalid],
@@ -67,6 +67,8 @@ defmodule Report.Mixfile do
      {:csv, "~> 2.0.0"},
      {:timex_ecto, "~> 3.1"},
      {:jvalid, "~> 0.6.0"},
+     {:scrivener_ecto, "~> 1.0"},
+     {:flow, "~> 0.11"},
      {:faker, "~> 0.8", only: [:test]},
      {:ex_machina, "~> 2.0", only: :test},
      {:benchfella, ">= 0.3.4", only: [:dev, :test]},
