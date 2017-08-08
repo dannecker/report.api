@@ -134,7 +134,7 @@ defmodule Report.BillingTest do
   defp generate_declarations do
     le = insert_list(5, :legal_entity)
     division = for _ <- 0..50, do: insert(:division, %{legal_entity_id: Enum.random(le).id})
-    persons = insert_list(100, :person)
+    persons = insert_list(150, :person)
     Enum.each(persons,
       fn p ->
         d = Enum.random(division)

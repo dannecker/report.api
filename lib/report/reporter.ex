@@ -22,20 +22,18 @@ defmodule Report.Reporter do
   end
 
   def generate_billing do
-    Stream.run(
-      Stream.resource(fn -> Replicas.declarations_with_assocs(page: 1, page_size: 500) end,
-                    fn collection ->
-                      collection
-                      |> process_billing(@async_billing)
-                      if collection.total_pages <= collection.page_number do
-                        {:halt, []}
-                      else
-                        Replicas.declarations_with_assocs(page: collection.page_number, page_size: 500)
-                      end
-                    end,
-                    fn _ -> nil end
-                    )
-    )
+    start_fun = fn -> Replicas.declarations_with_assocs(page: 1, page_size: 500) end
+    next_fun =
+      fn collection ->
+        collection
+        |> process_billing(@async_billing)
+        if collection.total_pages <= collection.page_number do
+          {:halt, nil}
+        else
+          {[], Replicas.declarations_with_assocs(page: collection.page_number + 1, page_size: 500)}
+        end
+      end
+    Stream.run(Stream.resource(start_fun, next_fun, fn _ -> nil end))
   end
 
   def process_billing(collection, async \\ false)
