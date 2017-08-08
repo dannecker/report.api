@@ -18,7 +18,7 @@ config :report_api, Report.Web.Endpoint,
   http: [port: 4001],
   server: true
 config :report_api,
-  async_billing: true
+  async_billing: false
 # Run acceptance test in concurrent mode
 config :report_api, sql_sandbox: true
 config :logger, :console, format: "[$level] $message\n"
