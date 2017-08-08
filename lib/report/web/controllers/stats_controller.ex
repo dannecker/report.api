@@ -5,6 +5,7 @@ defmodule Report.Web.StatsController do
 
   alias Report.Stats.DivisionStats
   alias Report.Stats.MainStats
+  alias Scrivener.Page
 
   action_fallback Report.Web.FallbackController
 
@@ -33,8 +34,8 @@ defmodule Report.Web.StatsController do
   end
 
   def divisions_map(conn, params) do
-    with {:ok, map_stats} <- DivisionStats.get_map_stats(params) do
-      render(conn, "divisions_map.json", divisions: map_stats)
+    with {:ok, %Page{} = pagination} <- DivisionStats.get_map_stats(params) do
+      render(conn, "divisions_map.json", divisions: pagination)
     end
   end
 end

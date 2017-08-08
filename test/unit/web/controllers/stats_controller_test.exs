@@ -148,6 +148,7 @@ defmodule Report.Web.StatsControllerTest do
       lefttop_longitude: 45,
       rightbottom_latitude: 25,
       rightbottom_longitude: 55,
+      page_size: 3,
     )
     assert map_stats = response(conn, 200)
     map_stats = Poison.decode!(map_stats)
@@ -158,9 +159,17 @@ defmodule Report.Web.StatsControllerTest do
       |> Poison.decode!()
 
     :ok = NExJsonSchema.Validator.validate(schema, map_stats)
+
+    assert 3 == Enum.count(map_stats["data"]["entries"])
+    assert 2 == map_stats["data"]["total_pages"]
+    assert 3 == map_stats["data"]["page_size"]
+    assert 4 == map_stats["data"]["total_entries"]
   end
 
   defp insert_fixtures do
+    insert(:division, location: %Geo.Point{coordinates: {30.1233, 50.32423}})
+    insert(:division, location: %Geo.Point{coordinates: {30.1233, 50.32423}})
+    insert(:division, location: %Geo.Point{coordinates: {30.1233, 50.32423}})
     insert(:division, location: %Geo.Point{coordinates: {30.1233, 50.32423}})
   end
 end
