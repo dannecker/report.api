@@ -15,6 +15,7 @@ defmodule Report.Billing do
     field :person_age, :integer, null: false
     field :compensation_group, :string, null: false
     field :decision_id, :string, null: false
+    field :is_valid, :boolean, null: false
     timestamps(type: :utc_datetime)
   end
 end

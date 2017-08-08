@@ -31,6 +31,7 @@ defmodule Report.ReporterTest do
       Reporter.generate_billing
       billings = Repo.all(Report.Billing)
       assert length(billings) == 30
+      assert Enum.all?(billings, &(Map.get(&1, :is_valid)))
     end
 
     test "generate_billing updates person age in billing" do
@@ -133,7 +134,7 @@ defmodule Report.ReporterTest do
             person_id: p.id,
             division_id: d.id,
             employee_id: Ecto.UUID.generate()
-            })
+          })
       end)
       les
     end

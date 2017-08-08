@@ -29,6 +29,13 @@ defmodule Report.MediaStorage do
     |> ResponseDecoder.check_response()
   end
 
+  def validate_signed_entity(rules) do
+    config()[:endpoint]
+    |> Kernel.<>("/validate_signed_entity")
+    |> post!(Poison.encode!(rules), [{"Content-Type", "application/json"}], options())
+    |> ResponseDecoder.check_response()
+  end
+
   def store_signed_content(signed_content, bucket, id, headers) do
     store_signed_content(config()[:enabled?], bucket, signed_content, id, headers)
   end
