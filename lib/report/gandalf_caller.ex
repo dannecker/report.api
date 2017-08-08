@@ -6,11 +6,12 @@ defmodule Report.GandalfCaller do
     config = Confex.get_env(:report_api, :gandalf)
     params
     |> Poison.encode!()
-    |> http_call(config)
+    |> http_call(config, [retry: 5, timeout: 1000])
     |> parse_resp()
   end
 
-  defp http_call(body, config) do
+  defp http_call(_, _, [retry: 0, timeout: _]), do: raise "Gandalf max retries exceeded"
+  defp http_call(body, config, [retry: retry, timeout: timeout]) do
     case HTTPoison.post(config[:url], body,
                         headers(config), recv_timeout: 30_000,
                         hackney: [pool: :default], ssl: [versions: [:"tlsv1.2"]]) do
@@ -21,7 +22,8 @@ defmodule Report.GandalfCaller do
         %{status_code: status, body: body}
       {:error, %HTTPoison.Error{reason: reason}} ->
         Logger.error fn -> "#{config[:url]}, #{reason}" end
-        raise to_string(reason)
+        :timer.sleep(timeout)
+        http_call(body, config, [retry: retry - 1, timeout: timeout + 1000])
     end
   end
 
