@@ -3,52 +3,69 @@
   "type": "object",
   "properties": {
     "data": {
-      "type": "array",
-      "items": {
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "name": {
-            "type": "string"
-          },
-          "type": {
-            "type": "string"
-          },
-          "addresses": {
-            "type": "array"
-          },
-          "contacts": {
-            "type": "object",
+      "type": "object",
+      "properties": {
+        "entries": {
+          "type": "array",
+          "items": {
             "properties": {
-              "email": {
+              "id": {
                 "type": "string"
               },
-              "phones": {
-                "type": "array"
-              }
-            }
-          },
-          "coordinates": {
-            "type": "object",
-            "items": {
-              "latitude": {
-                "type": "number"
+              "name": {
+                "type": "string"
               },
-              "longitude": {
-                "type": "number"
+              "type": {
+                "type": "string"
+              },
+              "addresses": {
+                "type": "array"
+              },
+              "contacts": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string"
+                  },
+                  "phones": {
+                    "type": "array"
+                  }
+                }
+              },
+              "coordinates": {
+                "type": "object",
+                "items": {
+                  "latitude": {
+                    "type": "number"
+                  },
+                  "longitude": {
+                    "type": "number"
+                  }
+                }
               }
-            }
+            },
+            "required": [
+              "id",
+              "name",
+              "type",
+              "addresses",
+              "contacts",
+              "coordinates"
+            ]
           }
         },
-        "required": [
-          "id",
-          "name",
-          "type",
-          "addresses",
-          "contacts",
-          "coordinates"
-        ]
+        "total_entries": {
+          "type": "number"
+        },
+        "page_number": {
+          "type": "number"
+        },
+        "page_size": {
+          "type": "number"
+        },
+        "total_pages": {
+          "type": "number"
+        }
       }
     }
   }

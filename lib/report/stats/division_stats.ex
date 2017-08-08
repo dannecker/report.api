@@ -14,13 +14,13 @@ defmodule Report.Stats.DivisionStats do
   def get_map_stats(params) do
     with %Ecto.Changeset{valid?: true} = changeset <- divisions_map_changeset(%DivisionsMapRequest{}, params),
          divisions_map_request <- apply_changes(changeset),
-         divisions <- divisions_by_map_request(divisions_map_request)
+         divisions <- divisions_by_map_request(divisions_map_request, params)
       do
       {:ok, divisions}
     end
   end
 
-  defp divisions_by_map_request(%DivisionsMapRequest{} = request) do
+  defp divisions_by_map_request(%DivisionsMapRequest{} = request, params) do
     %{
       lefttop_latitude: lefttop_latitude,
       lefttop_longitude: lefttop_longitude,
@@ -43,6 +43,6 @@ defmodule Report.Stats.DivisionStats do
     |> params_query(%{"type" => type, "status" => "ACTIVE", "is_active" => true})
     |> ilike_query(:name, name)
     |> where([d], fragment("ST_Intersects(?, ST_GeomFromText(?))", d.location, ^polygon))
-    |> Repo.all
+    |> Repo.paginate(params)
   end
 end

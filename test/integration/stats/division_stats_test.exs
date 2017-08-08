@@ -6,6 +6,7 @@ defmodule Report.Integration.DivisionStatsTest do
   alias Report.Replica.Division
   alias Report.Stats.DivisionStats
   alias Report.Stats.DivisionsMapRequest
+  alias Scrivener.Page
 
   test "get_map_stats/1" do
     %{"division" => division} = insert_fixtures()
@@ -18,11 +19,13 @@ defmodule Report.Integration.DivisionStatsTest do
       rightbottom_longitude: 55,
     }
 
-    {:ok, map_stats} = DivisionStats.get_map_stats(params)
+    {:ok, %Page{entries: map_stats}} = DivisionStats.get_map_stats(params)
     assert 1 == Enum.count(map_stats)
 
     id = division.id
     assert [%Division{id: ^id}] = map_stats
+
+    {:ok, %Page{entries: []}} = DivisionStats.get_map_stats(Map.put(params, :page, 2))
   end
 
   defp insert_fixtures do
