@@ -9,7 +9,7 @@ config :report_api, Report.Repo,
   # username: {:system, "DB_USER", "postgres"},
   # password: {:system, "DB_PASSWORD", "postgres"},
   # hostname: {:system, "DB_HOST", "0.0.0.0"},
-  # port: {:system, :integer, "DB_PORT", 5432},
+  # port: {:system, :integer, "DB_PORT", 5432}
   ownership_timeout: 120_000_000
 
 # We don't run a server during test. If one is required,
@@ -18,7 +18,7 @@ config :report_api, Report.Web.Endpoint,
   http: [port: 4001],
   server: true
 config :report_api,
-  async_billing: false
+  async_billing: true
 # Run acceptance test in concurrent mode
 config :report_api, sql_sandbox: true
 config :logger, :console, format: "[$level] $message\n"

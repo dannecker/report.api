@@ -9,6 +9,7 @@ defmodule Report.Reporter do
   alias Report.RedLists
 
   @async_billing Confex.get_env(:report_api, :async_billing)
+  @declaration_batch_size 100
 
   def capitation do
     generate_billing()
@@ -22,7 +23,7 @@ defmodule Report.Reporter do
   end
 
   def generate_billing do
-    start_fun = fn -> Replicas.declarations_with_assocs(page: 1, page_size: 500) end
+    start_fun = fn -> Replicas.declarations_with_assocs(page: 1, page_size: @declaration_batch_size) end
     next_fun =
       fn collection ->
         collection
@@ -30,7 +31,7 @@ defmodule Report.Reporter do
         if collection.total_pages <= collection.page_number do
           {:halt, nil}
         else
-          {[], Replicas.declarations_with_assocs(page: collection.page_number + 1, page_size: 500)}
+          {[], Replicas.declarations_with_assocs(page: collection.page_number + 1, page_size: @declaration_batch_size)}
         end
       end
     Stream.run(Stream.resource(start_fun, next_fun, fn _ -> nil end))
@@ -39,8 +40,8 @@ defmodule Report.Reporter do
   def process_billing(collection, async \\ false)
   def process_billing(collection, true) do
     collection
-    |> Flow.from_enumerable()
-    |> Flow.partition()
+    |> Flow.from_enumerable(max_demand: 100)
+    |> Flow.partition(max_demand: 5, stages: 10)
     |> Flow.each(fn item -> Billings.create_billing(item) end)
     |> Flow.run()
   end
