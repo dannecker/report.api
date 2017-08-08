@@ -11,7 +11,9 @@ defmodule Report.GandalfCaller do
   end
 
   defp http_call(body, config) do
-    case HTTPoison.post(config[:url], body, headers(config), [recv_timeout: 30_000, hackney: [pool: :default]]) do
+    case HTTPoison.post(config[:url], body,
+                        headers(config), recv_timeout: 30_000,
+                        hackney: [pool: :default], ssl: [versions: [:"tlsv1.2"]]) do
       {:ok, %HTTPoison.Response{status_code: status, body: body}} when status > 299 ->
         Logger.error fn -> "#{config[:url]}, #{body}" end
         raise "Gandalf error #{status} #{body}"

@@ -58,6 +58,8 @@ config :report_api,
   async_billing: true,
   validate_signed_content: true
 
+config :ssl, protocol_version: :"tlsv1.2"
+
 # Configures Elixir's Logger
 config :logger, :console,
   format: "$time $metadata[$level] $message\n",
