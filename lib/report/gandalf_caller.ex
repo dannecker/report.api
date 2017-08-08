@@ -11,15 +11,15 @@ defmodule Report.GandalfCaller do
   end
 
   defp http_call(body, config) do
-    case :hackney.post(config[:url], headers(config), body, [{:connect_timeout, 30_000}, :with_body]) do
-      {:ok, status, _headers, response} when status > 299 ->
-        Logger.error fn -> "#{config[:url]}, #{body}, #{response}" end
-        raise response
-      {:ok, status, headers, response} ->
-        %{status_code: status, headers: headers, body: response}
-      {:error, reason} ->
-        Logger.error fn -> "#{config[:url]}, #{reason}, #{body}" end
-        raise reason
+    case HTTPoison.post(config[:url], body, headers(config), [recv_timeout: 30_000, hackney: [pool: :default]]) do
+      {:ok, %HTTPoison.Response{status_code: status, body: body}} when status > 299 ->
+        Logger.error fn -> "#{config[:url]}, #{body}" end
+        raise "Gandalf error #{status} #{body}"
+      {:ok, %HTTPoison.Response{status_code: status, body: body}} when status < 299 ->
+        %{status_code: status, body: body}
+      {:error, %HTTPoison.Error{reason: reason}} ->
+        Logger.error fn -> "#{config[:url]}, #{reason}" end
+        raise to_string(reason)
     end
   end
 
