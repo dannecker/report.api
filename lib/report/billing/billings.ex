@@ -33,14 +33,11 @@ defmodule Report.Billings do
     with billing_chset <- billing_changeset(%Billing{}, declaration, legal_entity, person, division),
          {:ok, billing} <- Repo.insert(billing_chset)
     do
-      Logger.info fn -> "Billing was created for #{billing.declaration.id}" end
       billing
     else
       {:error, error_chset} ->
         Logger.error fn -> """
-          #{error_chset.errors} for
-          declaration_id=#error_chsetchanges.declaration.data.id}
-          legal_entity_id=#error_chsetchanges.legal_entity.data.id}
+          #{error_chset.errors}
           """
         end
     end
