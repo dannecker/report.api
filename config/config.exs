@@ -56,7 +56,7 @@ config :report_api, :gandalf,
 config :report_api,
   maturity_age: {:system, :integer, "MATURITY_AGE", 18},
   async_billing: true,
-  validate_signed_content: true
+  validate_signed_content: {:system, :boolean, "VALIDATE_SIGNED_CONTENT", true}
 
 config :ssl, protocol_version: :"tlsv1.2"
 
