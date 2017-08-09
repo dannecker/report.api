@@ -14,7 +14,7 @@ defmodule Report.Reporter do
   def capitation do
     generate_billing()
     generate_csv()
-    file = File.read!("/tmp/capitation.csv")
+    file = File.read!("/tmp/#{Timex.today}.csv")
     {:ok, public_url} =
       MediaStorage.store_signed_content(file, :capitation_report_bucket,
         to_string(Timex.to_unix(Timex.now)), [{"Content-Type", "application/json"}])
@@ -52,7 +52,8 @@ defmodule Report.Reporter do
 
   def generate_csv do
     header = ["edrpou", "name", "msp type", "0-5", "6-17", "18-39", "40-65", ">65", "initial", "gone green", "diff"]
-    file = File.stream!("/tmp/capitation.csv", [:delayed_write, :utf8])
+
+    file = File.stream!("/tmp/#{Timex.today}.csv", [:delayed_write, :utf8])
     Repo.transaction(fn ->
       Billings.get_billing_for_capitation
       |> Stream.chunk_by(fn x -> Enum.at(x, 0) end)

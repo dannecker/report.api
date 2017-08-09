@@ -81,7 +81,7 @@ defmodule Report.ReporterTest do
       Reporter.generate_billing()
       Reporter.generate_csv
       data =
-        "/tmp/capitation.csv"
+        "/tmp/#{Timex.today}.csv"
         |> File.stream!()
         |> CSV.decode()
         |> Enum.to_list
@@ -112,7 +112,7 @@ defmodule Report.ReporterTest do
       Reporter.capitation
       assert length(Repo.all(Report.ReportLog)) == 1
       data =
-        "/tmp/capitation.csv"
+        "/tmp/#{Timex.today}.csv"
         |> File.stream!()
         |> CSV.decode()
         |> Enum.to_list
