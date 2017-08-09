@@ -61,11 +61,22 @@ defmodule Report.BillingTest do
       assert billing.person_age == Timex.diff(Timex.today, declaration.person.birth_date, :years)
     end
 
-    test "billing_changeset/4" do
+    test "billing_changeset/5" do
       declaration = make_declaration_with_all() |> Repo.preload([:legal_entity, :person, :division])
-      billing = Billings.billing_changeset(%Billing{}, declaration, declaration.person, declaration.division)
+      billing = Billings.billing_changeset(%Billing{},
+        declaration, declaration.legal_entity, declaration.person, declaration.division)
       assert billing.changes.mountain_group == declaration.division.mountain_group
       assert billing.changes.person_age == Timex.diff(Timex.today, declaration.person.birth_date, :years)
+    end
+
+    test "billing_logs_changeset/5" do
+      declaration = make_declaration_with_all() |> Repo.preload([:legal_entity, :person, :division])
+      Repo.insert(Billings.billing_changeset(%Billing{},
+        declaration, nil, declaration.person, declaration.division))
+      assert length(Repo.all(Report.BillingLog)) == 1
+      Repo.insert(Billings.billing_changeset(%Billing{},
+        declaration, declaration.legal_entity, nil, declaration.division))
+      assert length(Repo.all(Report.BillingLog)) == 2
     end
   end
 

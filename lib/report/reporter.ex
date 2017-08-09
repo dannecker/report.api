@@ -9,7 +9,7 @@ defmodule Report.Reporter do
   alias Report.RedLists
 
   @async_billing Confex.get_env(:report_api, :async_billing)
-  @declaration_batch_size 250
+  @declaration_batch_size 1000
 
   def capitation do
     generate_billing()
@@ -40,8 +40,8 @@ defmodule Report.Reporter do
   def process_billing(collection, async \\ false)
   def process_billing(collection, true) do
     collection
-    |> Flow.from_enumerable(max_demand: 250)
-    |> Flow.partition(max_demand: 25, stages: 10)
+    |> Flow.from_enumerable()
+    |> Flow.partition(max_demand: 10, stages: 100)
     |> Flow.each(fn item -> Billings.create_billing(item) end)
     |> Flow.run()
   end
