@@ -11,9 +11,12 @@ defmodule Report.Billings do
   alias Report.GandalfCaller
   alias Report.RedLists
   alias Report.MediaStorage
+  alias Report.BillingLog
 
   @maturity_age Confex.get_env(:report_api, :maturity_age)
   @declarations_bucket Confex.fetch_env!(:report_api, Report.MediaStorage)[:declarations_bucket]
+  @inconsistent_data_error "Inconsistent data"
+  @sign_service_error "Sign service error"
 
   def get_last_billing_date do
     Billing
@@ -26,8 +29,8 @@ defmodule Report.Billings do
   defp get_billing_date(nil), do: Replicas.get_oldest_declaration_date()
   defp get_billing_date(billing) when is_map(billing), do: Map.get(billing, :billing_date)
 
-  def create_billing(%Declaration{person: person, division: division} = declaration) do
-    with billing_chset <- billing_changeset(%Billing{}, declaration, person, division),
+  def create_billing(%Declaration{legal_entity: legal_entity, person: person, division: division} = declaration) do
+    with billing_chset <- billing_changeset(%Billing{}, declaration, legal_entity, person, division),
          {:ok, billing} <- Repo.insert(billing_chset)
     do
       Logger.info fn -> "Billing was created for #{billing.declaration.id}" end
@@ -43,18 +46,31 @@ defmodule Report.Billings do
     end
   end
 
-  def billing_changeset(billing, declaration, person, division) do
-    billing
-    |> cast(%{}, [])
-    |> put_assoc(:legal_entity, declaration.legal_entity)
-    |> put_assoc(:declaration, declaration)
-    |> put_assoc(:division, division)
-    |> put_change(:billing_date, Timex.today)
-    |> put_mountain_group(division)
-    |> put_person_age(person)
-    |> put_decision()
-    |> put_red_msp(person)
-    |> put_is_valid(declaration, validate_signed_content())
+  def billing_changeset(billing, declaration, legal_entity, person, division)
+      when not is_nil(legal_entity) and not is_nil(person) and not is_nil(division) do
+    changeset =
+      billing
+      |> cast(%{}, [])
+      |> put_assoc(:legal_entity, declaration.legal_entity)
+      |> put_assoc(:declaration, declaration)
+      |> put_assoc(:division, division)
+      |> put_change(:billing_date, Timex.today)
+      |> put_mountain_group(division)
+      |> put_person_age(person)
+      |> put_red_msp(person)
+
+    with {:ok, changeset} <- put_decision(changeset),
+         {:ok, changeset} <- put_is_valid(changeset, declaration, validate_signed_content())
+    do
+      changeset
+    else
+      {:error, message} ->
+        billing_log_changeset(%BillingLog{}, declaration, legal_entity, person, division, message)
+    end
+  end
+
+  def billing_changeset(_ , declaration, legal_entity, person, division) do
+    billing_log_changeset(%BillingLog{}, declaration, legal_entity, person, division, @inconsistent_data_error)
   end
 
   defp put_mountain_group(billing_chset, division) do
@@ -62,7 +78,18 @@ defmodule Report.Billings do
   end
 
   defp put_decision(billing_chset) do
-    make_decision(billing_chset)
+    person_age = billing_chset.changes.person_age
+    mountain_group = billing_chset.changes.mountain_group
+    case GandalfCaller.make_decision(%{"mountain_group": mountain_group, "age": person_age}) do
+      {:ok, decision_params} ->
+        ch_set =
+          billing_chset
+          |> put_change(:decision_id, decision_params.id)
+          |> put_change(:compensation_group, decision_params.decision)
+        {:ok, ch_set}
+      {:error, message} ->
+        {:error, message}
+    end
   end
 
   defp put_red_msp(billing_chset, person) do
@@ -83,9 +110,9 @@ defmodule Report.Billings do
     with {:ok, %{"data" => %{"secret_url" => url}}} <- get_signed_declaration_url(id),
          {:ok, %{"data" => %{"is_valid" => is_valid}}} <- validate_declaration(declaration, url)
     do
-      put_change(changeset, :is_valid, is_valid)
+      {:ok, put_change(changeset, :is_valid, is_valid)}
     else
-      _ -> put_change(changeset, :is_valid, false)
+      _ -> {:error, @sign_service_error}
     end
   end
   def put_is_valid(changeset, _, false), do: changeset
@@ -126,15 +153,6 @@ defmodule Report.Billings do
     else
       RedLists.find_msp_by_type(red_list, "general")
     end
-  end
-
-  defp make_decision(billing_chset) do
-    person_age = billing_chset.changes.person_age
-    mountain_group = billing_chset.changes.mountain_group
-    decision_params = GandalfCaller.make_decision(%{"mountain_group": mountain_group, "age": person_age})
-    billing_chset
-    |> put_change(:decision_id, decision_params.id)
-    |> put_change(:compensation_group, decision_params.decision)
   end
 
   defp put_person_age(billing_chset, person) do
@@ -202,4 +220,17 @@ defmodule Report.Billings do
       ]
     })
   end
+
+  defp billing_log_changeset(billing_log, declaration, legal_entity, person, division, message) do
+    billing_log
+    |> cast(%{}, [])
+    |> put_change(:legal_entity_id, maybe_get_id(legal_entity))
+    |> put_change(:declaration_id, maybe_get_id(declaration))
+    |> put_change(:division_id, maybe_get_id(division))
+    |> put_change(:person_id, maybe_get_id(person))
+    |> put_change(:message, message)
+  end
+
+  defp maybe_get_id(nil), do: nil
+  defp maybe_get_id(struct) when is_map(struct), do: Map.get(struct, :id)
 end

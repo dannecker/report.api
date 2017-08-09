@@ -10,14 +10,14 @@ defmodule Report.GandalfCaller do
     |> parse_resp()
   end
 
-  defp http_call(_, _, [retry: 0, timeout: _]), do: raise "Gandalf max retries exceeded"
+  defp http_call(_, _, [retry: 0, timeout: _]), do: {:error, "Gandalf max retries exceeded"}
   defp http_call(body, config, [retry: retry, timeout: timeout]) do
     case HTTPoison.post(config[:url], body,
                         headers(config), recv_timeout: 30_000,
                         hackney: [pool: :default], ssl: [versions: [:"tlsv1.2"]]) do
       {:ok, %HTTPoison.Response{status_code: status, body: body}} when status > 299 ->
         Logger.error fn -> "#{config[:url]}, #{body}" end
-        raise "Gandalf error #{status} #{body}"
+        {:error, "Gandalf error #{status} #{body}"}
       {:ok, %HTTPoison.Response{status_code: status, body: body}} when status < 299 ->
         %{status_code: status, body: body}
       {:error, %HTTPoison.Error{reason: reason}} ->
@@ -43,6 +43,6 @@ defmodule Report.GandalfCaller do
 
   defp parse_resp(%{body: body}) do
     %{"data" => %{"_id" => id, "final_decision" => decision}} = Poison.decode!(body)
-    %{id: id, decision: decision}
+    {:ok, %{id: id, decision: decision}}
   end
 end

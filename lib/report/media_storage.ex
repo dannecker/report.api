@@ -2,6 +2,7 @@ defmodule Report.MediaStorage do
   @moduledoc """
   Media Storage on Google Cloud Platform
   """
+  @media_storage_timeout_error "MediaStorage is unavaible and max retries exceeded"
 
   use HTTPoison.Base
   use Confex, otp_app: :report_api
@@ -43,20 +44,25 @@ defmodule Report.MediaStorage do
   def store_signed_content(true, bucket, signed_content, id, headers) do
     "PUT"
     |> create_signed_url(config()[bucket], "capitation.csv", id, headers)
-    |> put_signed_content(signed_content)
+    |> put_signed_content(signed_content, [retry: 5, timeout: 60_000])
   end
 
   def store_signed_content(false, _bucket, _signed_content, _id, _headers) do
     {:ok, "Media Storage is disabled in config"}
   end
 
-  def put_signed_content({:ok, %{"data" => data}}, signed_content) do
+  def put_signed_content(_, _, [retry: 0, timeout: _]), do: {:error, @media_storage_timeout_error}
+  def put_signed_content({:ok, %{"data" => data}}, signed_content, [retry: retry, timeout: timeout]) do
     headers = [{"Content-Type", ""}]
     {:ok, _} =
-      data
-      |> Map.fetch!("secret_url")
-      |> put!(signed_content, headers, options())
-      |> check_gcs_response()
+      secret_url = Map.fetch!(data, "secret_url")
+
+      case check_gcs_response(put!(secret_url, signed_content, headers, options())) do
+        {:ok, body} -> {:ok, body}
+        {:error, _} ->
+          :timer.sleep(timeout)
+          put_signed_content({:ok, %{"data" => data}}, signed_content, [retry: retry - 1, timeout: timeout + timeout])
+      end
     {:ok, signed_to_public_url(Map.fetch!(data, "secret_url"))}
   end
 

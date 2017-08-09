@@ -29,8 +29,8 @@ config :report_api,
 
 config :report_api, Report.Repo,
   adapter: Ecto.Adapters.Postgres,
-  database: {:system, "DB_NAME", "report_dev"},
-  username: {:system, "DB_USER", "postgres"},
-  password: {:system, "DB_PASSWORD", "postgres"},
+  database: {:system, "DB_NAME", "report"},
+  username: {:system, "DB_USER", "db"},
+  password: {:system, "DB_PASSWORD", ""},
   hostname: {:system, "DB_HOST", "0.0.0.0"},
-  port: {:system, :integer, "DB_PORT", 5432}
+  port: {:system, :integer, "DB_PORT", 54321}
