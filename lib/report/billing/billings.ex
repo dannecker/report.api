@@ -112,7 +112,7 @@ defmodule Report.Billings do
       _ -> {:error, @sign_service_error}
     end
   end
-  def put_is_valid(changeset, _, false), do: changeset
+  def put_is_valid(changeset, _, false), do: {:ok, changeset}
 
   defp find_msp_territory(billing_chset, settlement_id, street_name, building) do
     red_list = RedLists.find_msp_territory(settlement_id, street_name, building)

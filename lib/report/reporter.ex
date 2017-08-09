@@ -41,7 +41,7 @@ defmodule Report.Reporter do
   def process_billing(collection, true) do
     collection
     |> Flow.from_enumerable()
-    |> Flow.partition(max_demand: 10, stages: 100)
+    |> Flow.partition(stages: 100)
     |> Flow.each(fn item -> Billings.create_billing(item) end)
     |> Flow.run()
   end
