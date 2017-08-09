@@ -14,7 +14,6 @@ defmodule Report.Billings do
 
   @maturity_age Confex.get_env(:report_api, :maturity_age)
   @declarations_bucket Confex.fetch_env!(:report_api, Report.MediaStorage)[:declarations_bucket]
-  @validate_signed_content Confex.get_env(:report_api, :validate_signed_content, false)
 
   def get_last_billing_date do
     Billing
@@ -55,7 +54,7 @@ defmodule Report.Billings do
     |> put_person_age(person)
     |> put_decision()
     |> put_red_msp(person)
-    |> put_is_valid(declaration, @validate_signed_content)
+    |> put_is_valid(declaration, validate_signed_content())
   end
 
   defp put_mountain_group(billing_chset, division) do
@@ -141,6 +140,10 @@ defmodule Report.Billings do
   defp put_person_age(billing_chset, person) do
     person_age = Timex.diff(Timex.today, person.birth_date, :years)
     put_change(billing_chset, :person_age, person_age)
+  end
+
+  defp validate_signed_content do
+    Confex.get_env(:report_api, :validate_signed_content, false)
   end
 
   def list_billing(query \\ Billing) do
