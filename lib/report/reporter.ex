@@ -15,11 +15,13 @@ defmodule Report.Reporter do
     generate_billing()
     generate_csv()
     file = File.read!("/tmp/#{Timex.today}.csv")
-    {:ok, public_url} =
-      MediaStorage.store_signed_content(file, :capitation_report_bucket,
-        to_string(Timex.to_unix(Timex.now)), [{"Content-Type", "application/json"}])
-    {:ok, log} = ReportLogs.save_capitation_csv_url(%ReportLog{}, %{public_url: public_url})
-    log
+    with {:ok, public_url} <- MediaStorage.store_signed_content(file, :capitation_report_bucket,
+          to_string(Timex.to_unix(Timex.now)), [{"Content-Type", "application/json"}]) do
+         {:ok, _} = ReportLogs.save_capitation_csv_url(%ReportLog{}, %{public_url: public_url})
+    else
+      _ -> raise "Couln't upload CSV to Google Cloud"
+    end
+    :ok
   end
 
   def generate_billing do
