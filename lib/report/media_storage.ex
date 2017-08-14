@@ -54,9 +54,9 @@ defmodule Report.MediaStorage do
   def put_signed_content(_, _, [retry: 0, timeout: _]), do: {:error, @media_storage_timeout_error}
   def put_signed_content({:ok, %{"data" => data}}, signed_content, [retry: retry, timeout: timeout]) do
     headers = [{"Content-Type", ""}]
-    {:ok, secret_url} = Map.fetch!(data, "secret_url")
+    secret_url = Map.fetch!(data, "secret_url")
     case check_gcs_response(put!(secret_url, signed_content, headers, options())) do
-      {:ok, _} -> {:ok, signed_to_public_url(Map.fetch!(data, "secret_url"))}
+      {:ok, _} -> {:ok, signed_to_public_url(secret_url)}
       {:error, _} ->
         :timer.sleep(timeout)
         put_signed_content({:ok, %{"data" => data}}, signed_content, [retry: retry - 1, timeout: timeout + timeout])
