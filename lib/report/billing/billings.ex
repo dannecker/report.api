@@ -215,7 +215,7 @@ defmodule Report.Billings do
           "value" => declaration.legal_entity.edrpou,
         },
       ]
-    })
+    }, [retry: 5, timeout: 1000])
   end
 
   defp billing_log_changeset(billing_log, declaration, legal_entity, person, division, message) do

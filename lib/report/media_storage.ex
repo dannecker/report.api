@@ -30,11 +30,16 @@ defmodule Report.MediaStorage do
     |> ResponseDecoder.check_response()
   end
 
-  def validate_signed_entity(rules) do
-    config()[:endpoint]
-    |> Kernel.<>("/validate_signed_entity")
-    |> post!(Poison.encode!(rules), [{"Content-Type", "application/json"}], options())
-    |> ResponseDecoder.check_response()
+  def validate_signed_entity(_, [retry: 0, timeout: _]), do: :error
+  def validate_signed_entity(rules, [retry: retry, timeout: timeout]) do
+    response =
+      config()[:endpoint]
+      |> Kernel.<>("/validate_signed_entity")
+      |> post!(Poison.encode!(rules), [{"Content-Type", "application/json"}], options())
+    case check_gcs_response(response) do
+      {:ok, body} -> {:ok, Poison.decode!(body)}
+      _ -> validate_signed_entity(rules, [retry: retry - 1, timeout: timeout + 1000])
+    end
   end
 
   def store_signed_content(signed_content, bucket, id, headers) do
