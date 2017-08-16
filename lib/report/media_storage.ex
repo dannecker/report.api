@@ -35,7 +35,7 @@ defmodule Report.MediaStorage do
     response =
       config()[:endpoint]
       |> Kernel.<>("/validate_signed_entity")
-      |> post!(Poison.encode!(rules), [{"Content-Type", "application/json"}], options())
+      |> post(Poison.encode!(rules), [{"Content-Type", "application/json"}], options())
     case check_gcs_response(response) do
       {:ok, body} -> {:ok, Poison.decode!(body)}
       _ -> validate_signed_entity(rules, [retry: retry - 1, timeout: timeout + 1000])
@@ -60,9 +60,9 @@ defmodule Report.MediaStorage do
   def put_signed_content({:ok, %{"data" => data}}, signed_content, [retry: retry, timeout: timeout]) do
     headers = [{"Content-Type", ""}]
     secret_url = Map.fetch!(data, "secret_url")
-    case check_gcs_response(put!(secret_url, signed_content, headers, options())) do
+    case check_gcs_response(put(secret_url, signed_content, headers, options())) do
       {:ok, _} -> {:ok, signed_to_public_url(secret_url)}
-      {:error, _} ->
+      _ ->
         :timer.sleep(timeout)
         put_signed_content({:ok, %{"data" => data}}, signed_content, [retry: retry - 1, timeout: timeout + timeout])
     end
@@ -73,11 +73,14 @@ defmodule Report.MediaStorage do
     err
   end
 
-  def check_gcs_response(%HTTPoison.Response{status_code: code, body: body}) when code in [200, 201] do
+  def check_gcs_response({:ok, %HTTPoison.Response{status_code: code, body: body}}) when code in [200, 201] do
     {:ok, body}
   end
-  def check_gcs_response(%HTTPoison.Response{body: body}) do
+  def check_gcs_response({:ok, %HTTPoison.Response{body: body}}) do
     {:error, body}
+  end
+  def check_gcs_response({:error, %HTTPoison.Error{}}) do
+    :error
   end
 
   defp signed_to_public_url(url) do
