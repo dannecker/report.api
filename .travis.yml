@@ -15,8 +15,14 @@ elixir:
   - 1.4.4
 otp_release:
   - 19.3
+notifications:
+  slack: 
+    rooms:
+      - secure: "WilReWpOLJvNyW9mASNQ4i2XmGoq6KnD8HX/kHIJg8EuVBrfCVgQ24bDq/L4nMTG3ho911HuGT07Aq1jPuFPT47zMoGGeEn9qAi7Lb/fWIv4XAoig8egCkWBSQkn4z1Yf6rz7HLYyaXRZwFdrkxT65nTO+TN5q3zAnN3UT8RSGG+O0DiWfqULAJkQWi8SHIvYF7L0YOgLphsNo+9qPLhQS+IVlOefcwprWNsAEyyjHfGfzC5UPRjrkuvyqWToSGMu7czKaaUgXJ8Tr5ERZkX6YMF4fe+H5EdbUEWyIaRw+p/0GIIEWAxkO/13ssJ71pISCiqp2Gal3nkjwu4ozOzYqTDtxAXd8PY30J3UK4rdyW9rhAozu/1MyIbnBDh8R1zKfI0SwHhNZjFTd4OH2xR37ly88j5YQlDp4DcTM/GIW0CPCmQ+t2e5moXdd6x4zrg6gBW4qUEwvnPoytA9N8DL4No7ZxF/IMgF+9jg9VipQkB8z/BmkB1IxjpA7049muiQOlGaO43As5zVdYcjBhrGhagxzwba3MWb4uDjgKl92F6IofNlqdMQdd4ZDGArI0lOlnozvCzMHi/oe7JLGdWKvzfDFcF6nBLQZruW16gwQluYmB8LPAK40ft3vLdPPqV8WqcoKLPYCEnAwc/Jcjqqq63jxj50gEZLjanicqv1Bs="
+    on_success: always
 env:
   global:
+    - Chart=reports
     - MIX_ENV=test
     # Set this to `true` if you want to require each commit to be semver-tagged with [major], [minor] or [patch] tags.
     - REQUIRE_VERSION_TAGS="false"
@@ -34,6 +40,7 @@ branches:
 before_install:
   - rm -f erlang-19.3-nonroot.tar.bz2
   - rm -f v1.4.4.zip
+  - openssl aes-256-cbc -K $encrypted_2c3f70a9cd78_key -iv $encrypted_2c3f70a9cd78_iv -in eHealth-eef414faa06b.json.enc -out eHealth-eef414faa06b.json -d
   # Expose MQ and DB to Docker container
   - sudo ./bin/ci/init-db.sh
 before_script:
@@ -60,7 +67,7 @@ script:
   # Initialize DB for Docker container
   - source .env; PGPASSWORD="${DB_PASSWORD}"; psql -U ${DB_USER} -w -c"CREATE DATABASE ${DB_NAME}"
   # Run Docker container
-  - ./bin/ci/release/start-container.sh
+  - ./bin/ci/release/start-container.sh || travis_terminate 1
   - sleep 5
   - docker ps
   - RUNNING_CONTAINERS=`docker ps | wc -l`;
@@ -71,10 +78,8 @@ script:
     fi;
   # Run acceptance tests on Docker container
   # - "CONTAINER_HTTP_HOST=localhost CONTAINER_HTTP_PORT=4000 mix test test/acceptance"
-after_failure:
-  - docker logs report_api --details --since 5h
-after_success:
-  - ./bin/ci/release/push-changes.sh
+  - ./bin/ci/push.sh || travis_terminate 1
+  - sudo ./bin/deploy.sh || travis_terminate 1
 # Also you can
 # - automatically build images and push them to Docker Hub;
 # - create new git tag with build version and GitHub release on it.
