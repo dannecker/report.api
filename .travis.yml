@@ -78,7 +78,7 @@ script:
     fi;
   # Run acceptance tests on Docker container
   # - "CONTAINER_HTTP_HOST=localhost CONTAINER_HTTP_PORT=4000 mix test test/acceptance"
-  - ./bin/ci/push.sh || travis_terminate 1
+  - ./bin/ci/release/push-changes.sh || travis_terminate 1
   - sudo ./bin/deploy.sh || travis_terminate 1
 # Also you can
 # - automatically build images and push them to Docker Hub;
