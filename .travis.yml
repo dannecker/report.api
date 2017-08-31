@@ -54,16 +54,9 @@ script:
   # Increment version in mix.exs
   - ./bin/ci/release/put-source-version.sh
   # Run all tests except pending ones
-  - mix test --exclude pending --trace
-  # Submit code coverage report to Coveralls
-  # Add --pro if you using private repo.
-  - mix coveralls.travis --exclude pending
-  # Run static code analysis
-  - mix credo --strict
-  # Check code style
-  - mix dogma
+  - ./bin/mix_tests.sh || travis_terminate 1
   # Build Docker container
-  - ./bin/ci/release/build-container.sh
+  - ./bin/ci/release/build-container.sh || travis_terminate 1
   # Initialize DB for Docker container
   - source .env; PGPASSWORD="${DB_PASSWORD}"; psql -U ${DB_USER} -w -c"CREATE DATABASE ${DB_NAME}"
   # Run Docker container
