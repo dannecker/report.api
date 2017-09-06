@@ -50,6 +50,8 @@ defmodule Report.Integration.MainStatsTest do
       |> File.read!()
       |> Poison.decode!()
 
+    assert 2 == main_stats |> List.first() |> get_in(["stats", "doctors"])
+
     schema =
       schema
       |> Map.put("type", "array")
@@ -262,10 +264,21 @@ defmodule Report.Integration.MainStatsTest do
         "settlement_type": "CITY"},
     ])
     division = insert(:division, legal_entity_id: legal_entity.id)
+    insert(:employee,
+      employee_type: "DOCTOR",
+      division: division,
+      legal_entity_id: legal_entity.id
+    )
     employee = insert(:employee,
       employee_type: "DOCTOR",
       division: division,
       legal_entity_id: legal_entity.id
+    )
+    employee = insert(:employee,
+      employee_type: "DOCTOR",
+      division: division,
+      legal_entity_id: legal_entity.id,
+      is_active: false
     )
     insert(:employee, employee_type: "DOCTOR", legal_entity_id: legal_entity.id)
     insert(:employee)

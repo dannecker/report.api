@@ -184,10 +184,13 @@ defmodule Report.Stats.MainStats do
   end
 
   defp doctors_by_regions do
-    LegalEntity
-    |> params_query(legal_entity_params())
-    |> where([le], fragment("? @> ?", le.addresses, ^[%{"type" => "REGISTRATION"}]))
-    |> select([le], %{address: fragment("jsonb_array_elements(?)", le.addresses)})
+    Employee
+    |> params_query(%{"employee_type" => "DOCTOR"})
+    |> params_query(%{"status" => "APPROVED"})
+    |> params_query(%{"is_active" => true})
+    |> join(:left, [d], dv in assoc(d, :division))
+    |> where([d, dv], fragment("? @> ?", dv.addresses, ^[%{"type" => "REGISTRATION"}]))
+    |> select([d, dv], %{address: fragment("jsonb_array_elements(?)", dv.addresses)})
     |> subquery()
     |> group_by([a], fragment("?->>'area'", a.address))
     |> select([a], %{region: fragment("?->>'area'", a.address), count: count(a.address)})
