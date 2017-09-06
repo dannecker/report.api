@@ -17,7 +17,7 @@ defmodule Report.Integration.MainStatsTest do
     schema = Map.put(schema, "properties", get_in(schema, ~w(properties data properties)))
     :ok = NExJsonSchema.Validator.validate(schema, main_stats)
 
-    assert %{"msps" => 3, "doctors" => 2, "declarations" => 1} = main_stats
+    assert %{"msps" => 3, "doctors" => 3, "declarations" => 1} = main_stats
   end
 
   test "get_division_stats/1" do
@@ -36,7 +36,7 @@ defmodule Report.Integration.MainStatsTest do
       "stats" => %{
         "declarations" => 1,
         "msps" => 1,
-        "doctors" => 1,
+        "doctors" => 2,
       }
     } = main_stats
   end
@@ -49,6 +49,8 @@ defmodule Report.Integration.MainStatsTest do
       "test/data/stats/regions_stats_response.json"
       |> File.read!()
       |> Poison.decode!()
+
+    assert 2 == main_stats |> List.first() |> get_in(["stats", "doctors"])
 
     schema =
       schema
@@ -262,10 +264,21 @@ defmodule Report.Integration.MainStatsTest do
         "settlement_type": "CITY"},
     ])
     division = insert(:division, legal_entity_id: legal_entity.id)
-    employee = insert(:employee,
+    insert(:employee,
       employee_type: "DOCTOR",
       division: division,
       legal_entity_id: legal_entity.id
+    )
+    insert(:employee,
+      employee_type: "DOCTOR",
+      division: division,
+      legal_entity_id: legal_entity.id
+    )
+    employee = insert(:employee,
+      employee_type: "DOCTOR",
+      division: division,
+      legal_entity_id: legal_entity.id,
+      is_active: false
     )
     insert(:employee, employee_type: "DOCTOR", legal_entity_id: legal_entity.id)
     insert(:employee)
