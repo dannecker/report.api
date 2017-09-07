@@ -179,6 +179,7 @@ defmodule Report.Stats.MainStats do
     |> select([le], %{address: fragment("jsonb_array_elements(?)", le.addresses)})
     |> subquery()
     |> group_by([a], fragment("?->>'area'", a.address))
+    |> where([a], fragment("?->>'type' = 'REGISTRATION'", a.address))
     |> select([a], %{region: fragment("?->>'area'", a.address), count: count(a.address)})
     |> Repo.all
   end
@@ -188,11 +189,12 @@ defmodule Report.Stats.MainStats do
     |> params_query(%{"employee_type" => "DOCTOR"})
     |> params_query(%{"status" => "APPROVED"})
     |> params_query(%{"is_active" => true})
-    |> join(:left, [d], dv in assoc(d, :division))
-    |> where([d, dv], fragment("? @> ?", dv.addresses, ^[%{"type" => "REGISTRATION"}]))
-    |> select([d, dv], %{address: fragment("jsonb_array_elements(?)", dv.addresses)})
+    |> join(:left, [e], dv in assoc(e, :division))
+    |> where([e, dv], fragment("? @> ?", dv.addresses, ^[%{"type" => "REGISTRATION"}]))
+    |> select([e, dv], %{address: fragment("jsonb_array_elements(?)", dv.addresses)})
     |> subquery()
     |> group_by([a], fragment("?->>'area'", a.address))
+    |> where([a], fragment("?->>'type' = 'REGISTRATION'", a.address))
     |> select([a], %{region: fragment("?->>'area'", a.address), count: count(a.address)})
     |> Repo.all
   end
@@ -205,6 +207,7 @@ defmodule Report.Stats.MainStats do
     |> select([d, dv], %{address: fragment("jsonb_array_elements(?)", dv.addresses)})
     |> subquery()
     |> group_by([a], fragment("?->>'area'", a.address))
+    |> where([a], fragment("?->>'type' = 'REGISTRATION'", a.address))
     |> select([a], %{region: fragment("?->>'area'", a.address), count: count(a.address)})
     |> Repo.all
   end

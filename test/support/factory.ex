@@ -88,13 +88,23 @@ defmodule Report.Factory do
       status: "ACTIVE",
       is_active: true,
       type: "clinic",
-      addresses: [%{"zip": "02090", "area": "ЛЬВІВСЬКА",
-                   "type": "REGISTRATION", "region": "ПУСТОМИТІВСЬКИЙ",
-                   "street": "вул. Ніжинська", "country": "UA",
-                   "building": "15", "apartment": "23",
-                   "settlement": "СОРОКИ-ЛЬВІВСЬКІ", "street_type": "STREET",
-                   "settlement_id": "707dbc55-cb6b-4aaa-97c1-2a1e03476100",
-                   "settlement_type": "CITY"}],
+      addresses: [
+        %{
+          "zip": "02090", "area": "ЛЬВІВСЬКА",
+          "type": "REGISTRATION", "region": "ПУСТОМИТІВСЬКИЙ",
+          "street": "вул. Ніжинська", "country": "UA",
+          "building": "15", "apartment": "23",
+          "settlement": "СОРОКИ-ЛЬВІВСЬКІ", "street_type": "STREET",
+          "settlement_id": "707dbc55-cb6b-4aaa-97c1-2a1e03476100",
+          "settlement_type": "CITY"
+        },
+        %{
+          "zip": "02090", "area": "ЛЬВІВСЬКА", "type": "RESIDENCE", "region": "ПУСТОМИТІВСЬКИЙ",
+          "street": "Ніжинська", "country": "UA", "building": "115", "apartment": "3",
+          "settlement": "СОРОКИ-ЛЬВІВСЬКІ", "street_type": "STREET",
+          "settlement_id": "707dbc55-cb6b-4aaa-97c1-2a1e03476100", "settlement_type": "CITY"
+        }
+      ],
       phones: [%{"type": "MOBILE", "number": "+380503410870"}],
       mountain_group: Enum.at(bool_list, :rand.uniform(2) - 1)
     }
