@@ -19,7 +19,7 @@ defmodule Report.Reporter do
           to_string(Timex.to_unix(Timex.now)), [{"Content-Type", "application/json"}]) do
          {:ok, _} = ReportLogs.save_capitation_csv_url(%ReportLog{}, %{public_url: public_url})
     else
-      _ -> raise "Couln't upload CSV to Google Cloud"
+      _ -> raise "Could not upload CSV to Google Cloud"
     end
     :ok
   end

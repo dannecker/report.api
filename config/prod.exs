@@ -31,6 +31,14 @@ config :report_api, Report.Repo,
   hostname: {:system, "DB_HOST"},
   port: {:system, :integer, "DB_PORT"}
 
+config :report_api, Report.Scheduler,
+  jobs: [
+    news_letter: [
+      schedule: "@monthly",
+      task: {Report.Reporter, :capitation, []},
+    ]
+  ]
+
 # For production, we often load configuration from external
 # sources, such as your system environment. For this reason,
 # you won't find the :http configuration below, but set inside
