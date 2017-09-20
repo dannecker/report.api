@@ -17,7 +17,7 @@ defmodule Report.Integration.MainStatsTest do
     schema = Map.put(schema, "properties", get_in(schema, ~w(properties data properties)))
     :ok = NExJsonSchema.Validator.validate(schema, main_stats)
 
-    assert %{"msps" => 3, "doctors" => 3, "declarations" => 1} = main_stats
+    assert %{"msps" => 3, "doctors" => 3, "declarations" => 2} = main_stats
   end
 
   test "get_division_stats/1" do
@@ -89,6 +89,7 @@ defmodule Report.Integration.MainStatsTest do
       |> Map.put("items", schema["properties"]["data"]["items"])
       |> Map.delete("properties")
     :ok = NExJsonSchema.Validator.validate(schema, main_stats)
+
     assert 21 = Enum.count(main_stats)
     assert %{
       "period_type" => ^interval,
@@ -99,10 +100,13 @@ defmodule Report.Integration.MainStatsTest do
       "period_name" => ^to_date,
     } = List.last(main_stats)
     assert %{
-      "declarations_created" => 2,
+      "declarations_created" => 3,
       "declarations_closed" => 1,
       "declarations_active_start" => 0,
-      "declarations_active_end" => 1} = main_stats |> List.last
+      "declarations_active_end" => 2,
+      "period_name" => to_string(Date.utc_today),
+      "period_type" => "DAY"
+    } == main_stats |> List.last
 
     # by "MONTH" interval
     interval = HistogramStatsRequest.interval(:month)
@@ -148,10 +152,13 @@ defmodule Report.Integration.MainStatsTest do
       "period_name" => ^to_month,
     } = List.last(main_stats)
     assert %{
-      "declarations_created" => 2,
+      "declarations_created" => 3,
       "declarations_closed" => 1,
       "declarations_active_start" => 0,
-      "declarations_active_end" => 1} = main_stats |> List.last
+      "declarations_active_end" => 2,
+      "period_type" => "MONTH",
+      "period_name" => Timex.format!(Timex.now(), "%Y-%m", :strftime)
+    } == main_stats |> List.last
 
     # by "YEAR" interval
     interval = HistogramStatsRequest.interval(:year)
@@ -197,10 +204,13 @@ defmodule Report.Integration.MainStatsTest do
       "period_name" => ^to_year,
     } = List.last(main_stats)
     assert %{
-      "declarations_created" => 2,
+      "declarations_created" => 3,
       "declarations_closed" => 1,
       "declarations_active_start" => 0,
-      "declarations_active_end" => 1} = main_stats |> List.last
+      "declarations_active_end" => 2,
+      "period_type" => "YEAR",
+      "period_name" => Timex.format!(Timex.now(), "%Y", :strftime)
+    } == main_stats |> List.last
   end
 
   test "histogram_stats_skeleton/2" do
@@ -297,9 +307,17 @@ defmodule Report.Integration.MainStatsTest do
       division_id: division.id,
       status: "terminated",
     )
+    declaration3 = insert(:declaration,
+      employee_id: employee.id,
+      person_id: person.id,
+      legal_entity_id: legal_entity.id,
+      division_id: division.id,
+      status: "pending_verification",
+    )
     insert(:declaration_status_hstr, declaration_id: declaration1.id, status: declaration1.status)
     insert(:declaration_status_hstr, declaration_id: declaration2.id, status: "active")
     insert(:declaration_status_hstr, declaration_id: declaration2.id, status: declaration2.status)
+    insert(:declaration_status_hstr, declaration_id: declaration3.id, status: declaration3.status)
     %{
       "region" => region,
       "division" => division,
