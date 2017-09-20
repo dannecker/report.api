@@ -30,7 +30,7 @@ defmodule Report.Stats.MainStats do
 
     declarations =
       Declaration
-      |> where([d], d.status in ~w(active pending_verification))
+      |> declaration_query()
       |> count_query()
 
     {:ok, %{
@@ -57,7 +57,8 @@ defmodule Report.Stats.MainStats do
 
     declarations =
       Declaration
-      |> params_query(%{"division_id" => id, "status" => "active"})
+      |> params_query(%{"division_id" => id})
+      |> declaration_query()
       |> count_query()
 
     {:ok, %{
@@ -201,7 +202,7 @@ defmodule Report.Stats.MainStats do
 
   defp declarations_by_regions do
     Declaration
-    |> params_query(%{"status" => "active"})
+    |> declaration_query()
     |> join(:left, [d], dv in assoc(d, :division))
     |> where([d, dv], fragment("? @> ?", dv.addresses, ^[%{"type" => "REGISTRATION"}]))
     |> select([d, dv], %{address: fragment("jsonb_array_elements(?)", dv.addresses)})
@@ -236,13 +237,17 @@ defmodule Report.Stats.MainStats do
     })
     |> subquery()
     |> where([a], a.x == 1)
-    |> params_query(%{"status" => "active"})
+    |> declaration_query()
     |> select([a], count(a.declaration_id))
     |> Repo.one!
   end
 
   defp doctor_params do
     %{"employee_type" => "DOCTOR", "status" => "APPROVED", "is_active" => true}
+  end
+
+  defp declaration_query(query) do
+    where(query, [d], d.status in ~w(active pending_verification))
   end
 
   defp legal_entity_params, do: %{"is_active" => true}
