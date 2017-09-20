@@ -34,7 +34,7 @@ defmodule Report.Integration.MainStatsTest do
     assert %{
       "division" => %{id: ^division_id},
       "stats" => %{
-        "declarations" => 1,
+        "declarations" => 2,
         "msps" => 1,
         "doctors" => 2,
       }
