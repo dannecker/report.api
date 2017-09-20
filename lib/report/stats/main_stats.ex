@@ -30,7 +30,7 @@ defmodule Report.Stats.MainStats do
 
     declarations =
       Declaration
-      |> params_query(%{"status" => "active"})
+      |> where([d], d.status in ~w(active pending_verification))
       |> count_query()
 
     {:ok, %{
