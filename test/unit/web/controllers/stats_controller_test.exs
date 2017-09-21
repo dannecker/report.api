@@ -160,10 +160,11 @@ defmodule Report.Web.StatsControllerTest do
 
     :ok = NExJsonSchema.Validator.validate(schema, map_stats)
 
-    assert 3 == Enum.count(map_stats["data"]["entries"])
-    assert 2 == map_stats["data"]["total_pages"]
-    assert 3 == map_stats["data"]["page_size"]
-    assert 4 == map_stats["data"]["total_entries"]
+    assert 3 == Enum.count(map_stats["data"])
+    assert is_map(map_stats["paging"])
+    assert 2 == map_stats["paging"]["total_pages"]
+    assert 3 == map_stats["paging"]["page_size"]
+    assert 4 == map_stats["paging"]["total_entries"]
   end
 
   defp insert_fixtures do
