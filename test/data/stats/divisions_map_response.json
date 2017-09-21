@@ -3,69 +3,52 @@
   "type": "object",
   "properties": {
     "data": {
-      "type": "object",
-      "properties": {
-        "entries": {
-          "type": "array",
-          "items": {
+      "type": "array",
+      "items": {
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "addresses": {
+            "type": "array"
+          },
+          "contacts": {
+            "type": "object",
             "properties": {
-              "id": {
+              "email": {
                 "type": "string"
               },
-              "name": {
-                "type": "string"
-              },
-              "type": {
-                "type": "string"
-              },
-              "addresses": {
+              "phones": {
                 "type": "array"
-              },
-              "contacts": {
-                "type": "object",
-                "properties": {
-                  "email": {
-                    "type": "string"
-                  },
-                  "phones": {
-                    "type": "array"
-                  }
-                }
-              },
-              "coordinates": {
-                "type": "object",
-                "items": {
-                  "latitude": {
-                    "type": "number"
-                  },
-                  "longitude": {
-                    "type": "number"
-                  }
-                }
               }
-            },
-            "required": [
-              "id",
-              "name",
-              "type",
-              "addresses",
-              "contacts",
-              "coordinates"
-            ]
+            }
+          },
+          "coordinates": {
+            "type": "object",
+            "items": {
+              "latitude": {
+                "type": "number"
+              },
+              "longitude": {
+                "type": "number"
+              }
+            }
           }
         },
-        "total_entries": {
-          "type": "number"
-        },
-        "page_number": {
-          "type": "number"
-        },
-        "page_size": {
-          "type": "number"
-        },
-        "total_pages": {
-          "type": "number"
-        }
+        "required": [
+          "id",
+          "name",
+          "type",
+          "addresses",
+          "contacts",
+          "coordinates"
+        ]
       }
     }
   }
