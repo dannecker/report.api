@@ -61,12 +61,6 @@ defmodule Report.Web.StatsView do
   end
 
   def render("divisions_map.json", %{divisions: divisions}) do
-    %{
-      entries: render_many(divisions.entries, __MODULE__, "division_details.json"),
-      page_number: divisions.page_number,
-      page_size: divisions.page_size,
-      total_pages: divisions.total_pages,
-      total_entries: divisions.total_entries
-    }
+    render_many(divisions, __MODULE__, "division_details.json")
   end
 end
