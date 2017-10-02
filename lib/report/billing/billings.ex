@@ -214,6 +214,11 @@ defmodule Report.Billings do
           "type" => "eq",
           "value" => declaration.legal_entity.edrpou,
         },
+        %{
+          "field" => ["seed"],
+          "type" => "eq",
+          "value" => declaration.seed
+        }
       ]
     }, [retry: 5, timeout: 1000])
   end

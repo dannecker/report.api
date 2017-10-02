@@ -14,6 +14,7 @@ defmodule Report.Replica.Declaration do
     field :is_active, :boolean, default: false
     field :scope, :string
     field :declaration_request_id, Ecto.UUID
+    field :seed, :binary
 
     belongs_to :division, Report.Replica.Division, type: Ecto.UUID
     belongs_to :person, Report.Replica.Person, type: Ecto.UUID
