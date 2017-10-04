@@ -1,0 +1,586 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "properties": {
+    "data": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "medication_request": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "description": "Medication Request identifier"
+              },
+              "request_number": {
+                "type": "string",
+                "description": "Public medication request human readable number"
+              },
+              "created_at": {
+                "type": "string",
+                "description": "Medication request creation date, which is determined by the external system. Format *DATE '2017-09-07'*"
+              },
+              "started_at": {
+                "type": "string",
+                "description": "Start date of a treatment period, which is determined by the external system. Greater or equal to **created_at**. Format *DATE '2017-09-07'*"
+              },
+              "ended_at": {
+                "type": "string",
+                "description": "End date of a treatment period, which is determined by the external system. Greater or equal to **started_at**. Format *DATE '2017-10-07'*"
+              },
+              "dispense_valid_from": {
+                "type": "string",
+                "description": "Start date of dispense period, which is determined by the external system. Format *DATE '2017-09-07'*"
+              },
+              "dispense_valid_to": {
+                "type": "string",
+                "description": "End date of dispense period, which is determined by the external system. Greater or equal to **dispense_valid_from**. Format *DATE '2017-10-07'*"
+              },
+              "status": {
+                "type": "string",
+                "description": "Medication Dispense status (NEW, PROCESSED, REJECTED, EXPIRED)"
+              },
+              "rejected_at": {
+                "type": "string",
+                "description": "Reject date - ISO 8601 date and time in UTC timezone."
+              },
+              "rejected_by": {
+                "type": "string",
+                "description": "Rejected user identifier"
+              },
+              "reject_reason": {
+                "type": "string",
+                "description": "Medication request reject reason"
+              },
+              "person_id": {
+                "type": "string",
+                "description": "Person identifier"
+              },
+              "legal_entity": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "description": "Legal entity identifier"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "edrpou": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "id",
+                  "name",
+                  "edrpou"
+                ]
+              },
+              "division": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "mountain_group": {
+                    "type": "boolean"
+                  },
+                  "addresses": {
+                    "type": "object",
+                    "properties": {
+                      "type": {
+                        "type": "string",
+                        "description": "`Dictionary ADDRESS_TYPE`"
+                      },
+                      "country": {
+                        "type": "string",
+                        "enum": [
+                          "UA"
+                        ],
+                        "description": "`Dictionary COUNTRY`"
+                      },
+                      "area": {
+                        "type": "string"
+                      },
+                      "region": {
+                        "type": "string"
+                      },
+                      "settlement": {
+                        "type": "string"
+                      },
+                      "settlement_type": {
+                        "type": "string",
+                        "description": "`Dictionary SETTLEMENT_TYPE`"
+                      },
+                      "settlement_id": {
+                        "type": "string"
+                      },
+                      "street_type": {
+                        "type": "string",
+                        "description": "`Dictionary STREET_TYPE`"
+                      },
+                      "street": {
+                        "type": "string"
+                      },
+                      "building": {
+                        "type": "string"
+                      },
+                      "apartment": {
+                        "type": "string"
+                      },
+                      "zip": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "type",
+                      "country",
+                      "settlement_id",
+                      "building"
+                    ]
+                  }
+                },
+                "required": [
+                  "id",
+                  "name",
+                  "addresses"
+                ]
+              },
+              "employee": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "description": "Employee identifier with `type=DOCTOR` who issued Medication Request."
+                  },
+                  "party_id": {
+                    "type": "string",
+                    "description": "Employee Party id"
+                  },
+                  "last_name": {
+                    "type": "string"
+                  },
+                  "first_name": {
+                    "type": "string"
+                  },
+                  "second_name": {
+                    "type": "string"
+                  },
+                  "position": {
+                    "type": "string",
+                    "description": "`Dictionary POSITION`"
+                  },
+                  "employee_type": {
+                    "type": "string",
+                    "description": "`Dictionary: EMPLOYEE_TYPE`"
+                  }
+                },
+                "required": [
+                  "id",
+                  "party_id",
+                  "last_name",
+                  "first_name",
+                  "position"
+                ]
+              },
+              "medication": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "form": {
+                    "type": "string",
+                    "description": "`Dictionary MEDICATION_FORM`"
+                  },
+                  "medication_qty": {
+                    "type": "number",
+                    "description": "qnty of INNM_DOSAGE"
+                  }
+                },
+                "required": [
+                  "id",
+                  "name",
+                  "form",
+                  "medication_qty"
+                ]
+              },
+              "medical_program": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "description": "`Medical program Identifier`"
+                  },
+                  "name": {
+                    "type": "string",
+                    "description": "`Medical program name`"
+                  }
+                },
+                "required": [
+                  "id",
+                  "name"
+                ]
+              }
+            },
+            "required": [
+              "id",
+              "created_at",
+              "started_at",
+              "ended_at",
+              "dispense_valid_from",
+              "dispense_valid_to",
+              "status",
+              "person_id",
+              "legal_entity",
+              "division",
+              "employee",
+              "innm_dosage",
+              "medical_program"
+            ]
+          },
+          "medication_dispense": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "description": "Medication dispense Identifier"
+              },
+              "dispensed_at": {
+                "type": "string",
+                "description": "date of dispense"
+              },
+              "status": {
+                "type": "string",
+                "description": "Medication Dispense status (NEW, PROCESSED, REJECTED, EXPIRED)"
+              },
+              "medications": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "enum": [
+                        "b075f148-7f93-4fc2-b2ec-2d81b19a9b7b"
+                      ],
+                      "description": "Identifier of brand medications"
+                    },
+                    "code_atc": {
+                      "type": "string",
+                      "enum": [
+                        "С01BD01"
+                      ]
+                    },
+                    "name": {
+                      "type": "string",
+                      "enum": [
+                        "Амідарон"
+                      ]
+                    },
+                    "type": {
+                      "type": "string",
+                      "enum": [
+                        "MEDICATION"
+                      ]
+                    },
+                    "manufacturer": {
+                      "type": "object",
+                      "properties": {
+                        "name": {
+                          "type": "string",
+                          "enum": [
+                            "ПАТ \"Київський вітамінний завод\""
+                          ]
+                        },
+                        "country": {
+                          "type": "string",
+                          "enum": [
+                            "UA"
+                          ],
+                          "description": "`Dictionary COUNTRY`"
+                        }
+                      },
+                      "required": [
+                        "name",
+                        "country"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "form": {
+                      "type": "string",
+                      "enum": [
+                        "PILL"
+                      ],
+                      "description": "`Dictionary MEDICATION_FORM`"
+                    },
+                    "container": {
+                      "type": "object",
+                      "properties": {
+                        "numerator_unit": {
+                          "type": "string",
+                          "enum": [
+                            "PILL"
+                          ],
+                          "description": "`Dictionary MEDICATION_UNIT`"
+                        },
+                        "numerator_value": {
+                          "type": "number"
+                        },
+                        "denumerator_unit": {
+                          "type": "string",
+                          "enum": [
+                            "PILL"
+                          ],
+                          "description": "`Dictionary MEDICATION_UNIT`"
+                        },
+                        "denumerator_value": {
+                          "type": "number"
+                        }
+                      },
+                      "required": [
+                        "numerator_unit",
+                        "numerator_value",
+                        "denumerator_unit",
+                        "denumerator_value"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "package_qty": {
+                      "type": "number",
+                      "description": "qnty medications in the package"
+                    },
+                    "dispense_details": {
+                      "type": "object",
+                      "properties": {
+                        "medication_qty": {
+                          "type": "number",
+                          "description": "qnty of medication_unit (pill/ampoule/container/bottle/vial/aerosol) which provides to the patient"
+                        },
+                        "sell_price": {
+                          "type": "number",
+                          "description": "pharmacy's price for one nondivisible medication_unit (pill/ampoule/container/bottle/vial/aerosol)"
+                        },
+                        "sell_amount": {
+                          "type": "number",
+                          "description": "total pharmacy's price for the requested medication quantity"
+                        },
+                        "discount_amount": {
+                          "type": "number",
+                          "description": "pharmacy's expected price of dicsount for the requested medication quantity"
+                        },
+                        "reimbursement_amount": {
+                          "type": "number",
+                          "description": "Amount to reimburse for medication package by medical_program"
+                        }
+                      },
+                      "required": [
+                        "medication_qty",
+                        "sell_price",
+                        "sell_amount",
+                        "discount_amount",
+                        "reimbursement_amount"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "name",
+                    "type",
+                    "form",
+                    "container",
+                    "package_qty",
+                    "dispense_details"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "medical_program": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "description": "`Medical program Identifier`"
+                  },
+                  "name": {
+                    "type": "string",
+                    "description": "`Medical program name`"
+                  }
+                },
+                "required": [
+                  "id",
+                  "name"
+                ]
+              },
+              "legal_entity": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "description": "Legal entity identifier"
+                  },
+                  "name": {
+                    "type": "string",
+                    "description": "Legal entity name"
+                  },
+                  "edrpou": {
+                    "type": "string",
+                    "description": "Legal entity edrpou"
+                  }
+                },
+                "required": [
+                  "id",
+                  "name",
+                  "edrpou"
+                ]
+              },
+              "division": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "addresses": {
+                    "type": "object",
+                    "properties": {
+                      "type": {
+                        "type": "string",
+                        "description": "`Dictionary ADDRESS_TYPE`"
+                      },
+                      "country": {
+                        "type": "string",
+                        "enum": [
+                          "UA"
+                        ],
+                        "description": "`Dictionary COUNTRY`"
+                      },
+                      "area": {
+                        "type": "string"
+                      },
+                      "region": {
+                        "type": "string"
+                      },
+                      "settlement": {
+                        "type": "string"
+                      },
+                      "settlement_type": {
+                        "type": "string",
+                        "description": "`Dictionary SETTLEMENT_TYPE`"
+                      },
+                      "settlement_id": {
+                        "type": "string"
+                      },
+                      "street_type": {
+                        "type": "string",
+                        "description": "`Dictionary STREET_TYPE`"
+                      },
+                      "street": {
+                        "type": "string"
+                      },
+                      "building": {
+                        "type": "string"
+                      },
+                      "apartment": {
+                        "type": "string"
+                      },
+                      "zip": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "type",
+                      "country",
+                      "settlement_id",
+                      "building"
+                    ]
+                  }
+                },
+                "required": [
+                  "id",
+                  "name",
+                  "addresses"
+                ]
+              },
+              "party": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "description": "Employee Party id"
+                  },
+                  "last_name": {
+                    "type": "string"
+                  },
+                  "first_name": {
+                    "type": "string"
+                  },
+                  "second_name": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "id",
+                  "last_name",
+                  "first_name"
+                ]
+              }
+            },
+            "required": [
+              "id",
+              "dispensed_at",
+              "status",
+              "medications",
+              "medical_program",
+              "legal_entity",
+              "division",
+              "employee"
+            ]
+          }
+        },
+        "required": [
+          "medication_request"
+        ]
+      }
+    },
+    "paging": {
+      "type": "object",
+      "properties": {
+        "page_number": {
+          "type": "number",
+          "description": "Page number."
+        },
+        "page_size": {
+          "type": "number",
+          "description": "A limit on the number of objects to be returned, between 1 and 100. Default: 50"
+        },
+        "total_entries": {
+          "type": "number",
+          "description": "Total number of objects in collection."
+        },
+        "total_pages": {
+          "type": "number",
+          "description": "Total number of pages."
+        }
+      },
+      "required": [
+        "page_number",
+        "page_size",
+        "total_entries",
+        "total_pages"
+      ],
+      "additionalProperties": false
+    }
+  }
+}
