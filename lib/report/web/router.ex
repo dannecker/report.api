@@ -40,5 +40,7 @@ defmodule Report.Web.Router do
     end
 
     get "/page", PageController, :index
+
+    get "/reimbursement_report", ReimbursementController, :index
   end
 end
