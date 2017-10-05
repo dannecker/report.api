@@ -4,6 +4,18 @@ defmodule Report.Web.FallbackController do
   """
   use Report.Web, :controller
 
+  def call(conn, {:error, json_schema_errors}) when is_list(json_schema_errors) do
+    conn
+    |> put_status(422)
+    |> render(EView.Views.ValidationError, "422.json", %{schema: json_schema_errors})
+  end
+
+  def call(conn, {:error, :forbidden}) do
+    conn
+    |> put_status(:forbidden)
+    |> render(EView.Views.Error, :"403")
+  end
+
   def call(conn, {:error, :access_denied}) do
     conn
     |> put_status(:unauthorized)

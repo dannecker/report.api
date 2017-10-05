@@ -58,6 +58,10 @@
                 "type": "string",
                 "description": "Person identifier"
               },
+              "medication_qty": {
+                "type": "number",
+                "description": "qnty of INNM_DOSAGE"
+              },
               "legal_entity": {
                 "type": "object",
                 "properties": {
@@ -90,7 +94,7 @@
                   "mountain_group": {
                     "type": "boolean"
                   },
-                  "addresses": {
+                  "address": {
                     "type": "object",
                     "properties": {
                       "type": {
@@ -99,9 +103,6 @@
                       },
                       "country": {
                         "type": "string",
-                        "enum": [
-                          "UA"
-                        ],
                         "description": "`Dictionary COUNTRY`"
                       },
                       "area": {
@@ -148,7 +149,7 @@
                 "required": [
                   "id",
                   "name",
-                  "addresses"
+                  "address"
                 ]
               },
               "employee": {
@@ -200,17 +201,12 @@
                   "form": {
                     "type": "string",
                     "description": "`Dictionary MEDICATION_FORM`"
-                  },
-                  "medication_qty": {
-                    "type": "number",
-                    "description": "qnty of INNM_DOSAGE"
                   }
                 },
                 "required": [
                   "id",
                   "name",
-                  "form",
-                  "medication_qty"
+                  "form"
                 ]
               },
               "medical_program": {
@@ -243,8 +239,9 @@
               "legal_entity",
               "division",
               "employee",
-              "innm_dosage",
-              "medical_program"
+              "medication",
+              "medical_program",
+              "medication_qty"
             ]
           },
           "medication_dispense": {
@@ -269,43 +266,25 @@
                   "properties": {
                     "id": {
                       "type": "string",
-                      "enum": [
-                        "b075f148-7f93-4fc2-b2ec-2d81b19a9b7b"
-                      ],
                       "description": "Identifier of brand medications"
                     },
                     "code_atc": {
-                      "type": "string",
-                      "enum": [
-                        "С01BD01"
-                      ]
+                      "type": "string"
                     },
                     "name": {
-                      "type": "string",
-                      "enum": [
-                        "Амідарон"
-                      ]
+                      "type": "string"
                     },
                     "type": {
-                      "type": "string",
-                      "enum": [
-                        "MEDICATION"
-                      ]
+                      "type": "string"
                     },
                     "manufacturer": {
                       "type": "object",
                       "properties": {
                         "name": {
-                          "type": "string",
-                          "enum": [
-                            "ПАТ \"Київський вітамінний завод\""
-                          ]
+                          "type": "string"
                         },
                         "country": {
                           "type": "string",
-                          "enum": [
-                            "UA"
-                          ],
                           "description": "`Dictionary COUNTRY`"
                         }
                       },
@@ -317,9 +296,6 @@
                     },
                     "form": {
                       "type": "string",
-                      "enum": [
-                        "PILL"
-                      ],
                       "description": "`Dictionary MEDICATION_FORM`"
                     },
                     "container": {
@@ -327,9 +303,6 @@
                       "properties": {
                         "numerator_unit": {
                           "type": "string",
-                          "enum": [
-                            "PILL"
-                          ],
                           "description": "`Dictionary MEDICATION_UNIT`"
                         },
                         "numerator_value": {
@@ -337,9 +310,6 @@
                         },
                         "denumerator_unit": {
                           "type": "string",
-                          "enum": [
-                            "PILL"
-                          ],
                           "description": "`Dictionary MEDICATION_UNIT`"
                         },
                         "denumerator_value": {
@@ -452,7 +422,10 @@
                   "name": {
                     "type": "string"
                   },
-                  "addresses": {
+                  "mountain_group": {
+                    "type": "boolean"
+                  },
+                  "address": {
                     "type": "object",
                     "properties": {
                       "type": {
@@ -510,7 +483,7 @@
                 "required": [
                   "id",
                   "name",
-                  "addresses"
+                  "address"
                 ]
               },
               "party": {
@@ -545,7 +518,7 @@
               "medical_program",
               "legal_entity",
               "division",
-              "employee"
+              "party"
             ]
           }
         },
