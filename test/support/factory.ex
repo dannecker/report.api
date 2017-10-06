@@ -3,6 +3,7 @@ defmodule Report.Factory do
   use ExMachina.Ecto, repo: Report.Repo
   alias Report.Replica.Declaration
   alias Report.Replica.DeclarationStatusHistory
+  alias Report.Replica.MedicationRequestStatusHistory
   alias Report.Replica.Employee
   alias Report.Replica.Person
   alias Report.Replica.LegalEntity
@@ -40,6 +41,10 @@ defmodule Report.Factory do
 
   def declaration_status_hstr_factory do
     %DeclarationStatusHistory{}
+  end
+
+  def medication_request_status_hstr_factory do
+    %MedicationRequestStatusHistory{}
   end
 
   def make_declaration_with_all do

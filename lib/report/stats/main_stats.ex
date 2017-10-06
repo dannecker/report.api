@@ -8,6 +8,8 @@ defmodule Report.Stats.MainStats do
   alias Report.Replica.Employee
   alias Report.Replica.LegalEntity
   alias Report.Replica.Region
+  alias Report.Replica.MedicationRequest
+  alias Report.Replica.MedicationRequestStatusHistory
   alias Report.Stats.HistogramStatsRequest
 
   import Ecto.Changeset, only: [apply_changes: 1]
@@ -20,12 +22,22 @@ defmodule Report.Stats.MainStats do
   def get_main_stats do
     msps =
       LegalEntity
-      |> params_query(legal_entity_params())
+      |> params_query(msp_params())
+      |> count_query()
+
+    pharmacies =
+      LegalEntity
+      |> params_query(pharmacy_params())
       |> count_query()
 
     doctors =
       Employee
       |> params_query(doctor_params())
+      |> count_query()
+
+    pharmacists =
+      Employee
+      |> params_query(pharmacist_params())
       |> count_query()
 
     declarations =
@@ -36,7 +48,9 @@ defmodule Report.Stats.MainStats do
     {:ok, %{
       "declarations" => declarations,
       "doctors" => doctors,
+      "pharmacists" => pharmacists,
       "msps" => msps,
+      "pharmacies" => pharmacies,
     }}
   end
 
@@ -45,7 +59,7 @@ defmodule Report.Stats.MainStats do
 
     msps =
       LegalEntity
-      |> params_query(legal_entity_params())
+      |> params_query(msp_params())
       |> join(:left, [le], d in Division, d.legal_entity_id == le.id)
       |> where([le, d], d.id == ^id)
       |> count_query()
@@ -74,8 +88,11 @@ defmodule Report.Stats.MainStats do
   def get_regions_stats do
     with skeleton <- regions_stats_skeleton(Repo.all(Region)),
          skeleton <- add_to_regions_skeleton(msps_by_regions(), ["stats", "msps"], skeleton),
+         skeleton <- add_to_regions_skeleton(pharmacies_by_regions(), ["stats", "pharmacies"], skeleton),
          skeleton <- add_to_regions_skeleton(doctors_by_regions(), ["stats", "doctors"], skeleton),
-         skeleton <- add_to_regions_skeleton(declarations_by_regions(), ["stats", "declarations"], skeleton)
+         skeleton <- add_to_regions_skeleton(pharmacists_by_regions(), ["stats", "pharmacists"], skeleton),
+         skeleton <- add_to_regions_skeleton(declarations_by_regions(), ["stats", "declarations"], skeleton),
+         skeleton <- add_to_regions_skeleton(medication_requests_by_regions(), ~w(stats medication_requests), skeleton)
     do
       {:ok, Map.values(skeleton)}
     end
@@ -113,24 +130,63 @@ defmodule Report.Stats.MainStats do
         {date, count}
       end)
 
-    head = Map.put(hd(skeleton), "declarations_active_start", active_declarations)
+    active_medication_requests = active_medication_requests_by_date(from_date)
+    created_medication_requests =
+      MedicationRequest
+      |> interval_query(from_date, to_date)
+      |> medication_requests_by_intervals(interval)
+      |> Repo.all
+      |> Enum.into(%{}, fn %{count: count, date: date} ->
+        {date, count}
+      end)
+    closed_medication_requests =
+      MedicationRequestStatusHistory
+      |> interval_query(from_date, to_date)
+      |> where([mrsh], mrsh.status in ~w(COMPLETED))
+      |> medication_requests_by_intervals(interval)
+      |> Repo.all
+      |> Enum.into(%{}, fn %{count: count, date: date} ->
+        {date, count}
+      end)
+
+      head =
+        skeleton
+        |> hd()
+        |> Map.put("declarations_active_start", active_declarations)
+        |> Map.put("medication_requests_active_start", active_medication_requests)
     skeleton = [head | List.delete_at(skeleton, 0)]
 
     {skeleton, _} =
       skeleton
       |> Enum.with_index
       |> Enum.reduce({skeleton, nil}, fn {%{"period_name" => date} = value, i}, {acc, previous} ->
-        active_start = if is_nil(previous),
+        declarations_active_start = if is_nil(previous),
           do: Map.get(value, "declarations_active_start"),
           else: Map.get(previous, "declarations_active_end")
 
-        created = Map.get(created_declarations, date, 0)
-        closed = Map.get(closed_declarations, date, 0)
+        medication_requests_active_start = if is_nil(previous),
+          do: Map.get(value, "medication_requests_active_start"),
+          else: Map.get(previous, "medication_requests_active_end")
+
+        created_declarations = Map.get(created_declarations, date, 0)
+        closed_declarations = Map.get(closed_declarations, date, 0)
+        declarations_active_end = declarations_active_start +
+          created_declarations - closed_declarations
+
+        created_medication_requests = Map.get(created_medication_requests, date, 0)
+        closed_medication_requests = Map.get(closed_medication_requests, date, 0)
+        medication_requests_active_end = medication_requests_active_start +
+          created_medication_requests - closed_medication_requests
         new_value = %{value |
-          "declarations_created" => created,
-          "declarations_closed" => closed,
-          "declarations_active_start" => active_start,
-          "declarations_active_end" => active_start + created - closed}
+          "declarations_created" => created_declarations,
+          "declarations_closed" => closed_declarations,
+          "declarations_active_start" => declarations_active_start,
+          "declarations_active_end" => declarations_active_end,
+          "medication_requests_created" => created_medication_requests,
+          "medication_requests_closed" => closed_medication_requests,
+          "medication_requests_active_start" => medication_requests_active_start,
+          "medication_requests_active_end" => medication_requests_active_end
+        }
         {List.replace_at(acc, i, new_value), new_value}
       end)
     skeleton
@@ -139,6 +195,10 @@ defmodule Report.Stats.MainStats do
   defp declarations_by_intervals(query, "DAY"), do: histogram_day_query(query)
   defp declarations_by_intervals(query, "MONTH"), do: histogram_month_query(query)
   defp declarations_by_intervals(query, "YEAR"), do: histogram_year_query(query)
+
+  defp medication_requests_by_intervals(query, "DAY"), do: histogram_day_query(query)
+  defp medication_requests_by_intervals(query, "MONTH"), do: histogram_month_query(query)
+  defp medication_requests_by_intervals(query, "YEAR"), do: histogram_year_query(query)
 
   def histogram_stats_skeleton(%HistogramStatsRequest{} = request) do
     %{interval: interval, from_date: from_date, to_date: to_date} = request
@@ -156,6 +216,10 @@ defmodule Report.Stats.MainStats do
         "declarations_closed" => 0,
         "declarations_active_start" => 0,
         "declarations_active_end" => 0,
+        "medication_requests_created" => 0,
+        "medication_requests_closed" => 0,
+        "medication_requests_active_start" => 0,
+        "medication_requests_active_end" => 0,
       }
     end)
   end
@@ -175,7 +239,18 @@ defmodule Report.Stats.MainStats do
 
   defp msps_by_regions do
     LegalEntity
-    |> params_query(legal_entity_params())
+    |> params_query(msp_params())
+    |> legal_entities_by_regions()
+  end
+
+  defp pharmacies_by_regions do
+    LegalEntity
+    |> params_query(pharmacy_params())
+    |> legal_entities_by_regions()
+  end
+
+  defp legal_entities_by_regions(query) do
+    query
     |> where([le], fragment("? @> ?", le.addresses, ^[%{"type" => "REGISTRATION"}]))
     |> select([le], %{address: fragment("jsonb_array_elements(?)", le.addresses)})
     |> subquery()
@@ -188,11 +263,35 @@ defmodule Report.Stats.MainStats do
   defp doctors_by_regions do
     Employee
     |> params_query(%{"employee_type" => "DOCTOR"})
+    |> employees_by_regions()
+  end
+
+  defp pharmacists_by_regions do
+    Employee
+    |> params_query(%{"employee_type" => "PHARMACIST"})
+    |> employees_by_regions()
+  end
+
+  defp employees_by_regions(query) do
+    query
     |> params_query(%{"status" => "APPROVED"})
     |> params_query(%{"is_active" => true})
     |> join(:left, [e], dv in assoc(e, :division))
     |> where([e, dv], fragment("? @> ?", dv.addresses, ^[%{"type" => "REGISTRATION"}]))
     |> select([e, dv], %{address: fragment("jsonb_array_elements(?)", dv.addresses)})
+    |> subquery()
+    |> group_by([a], fragment("?->>'area'", a.address))
+    |> where([a], fragment("?->>'type' = 'REGISTRATION'", a.address))
+    |> select([a], %{region: fragment("?->>'area'", a.address), count: count(a.address)})
+    |> Repo.all
+  end
+
+  defp medication_requests_by_regions do
+    MedicationRequest
+    |> join(:left, [mr], e in assoc(mr, :employee))
+    |> join(:left, [mr, e], d in assoc(e, :division))
+    |> where([mr, e, d], fragment("? @> ?", d.addresses, ^[%{"type" => "REGISTRATION"}]))
+    |> select([mr, e, d], %{address: fragment("jsonb_array_elements(?)", d.addresses)})
     |> subquery()
     |> group_by([a], fragment("?->>'area'", a.address))
     |> where([a], fragment("?->>'type' = 'REGISTRATION'", a.address))
@@ -242,15 +341,46 @@ defmodule Report.Stats.MainStats do
     |> Repo.one!
   end
 
+  defp active_medication_requests_by_date(date) do
+    MedicationRequestStatusHistory
+    |> lt_date_query(date)
+    |> join(:left, [mrsh], d in assoc(mrsh, :medication_request))
+    |> select([mrsh, mr], %{
+      status: mrsh.status,
+      medication_request_id: mrsh.medication_request_id,
+      x: fragment("""
+      rank() OVER (
+        PARTITION BY ?
+        ORDER BY ? DESC
+      )
+      """, mrsh.medication_request_id, mrsh.inserted_at)
+    })
+    |> subquery()
+    |> where([a], a.x == 1)
+    |> medication_request_query()
+    |> select([a], count(a.medication_request_id))
+    |> Repo.one!
+  end
+
   defp doctor_params do
     %{"employee_type" => "DOCTOR", "status" => "APPROVED", "is_active" => true}
+  end
+
+  defp pharmacist_params do
+    %{"employee_type" => "PHARMACIST", "status" => "APPROVED", "is_active" => true}
   end
 
   defp declaration_query(query) do
     where(query, [d], d.status in ~w(active pending_verification))
   end
 
-  defp legal_entity_params, do: %{"is_active" => true}
+  defp medication_request_query(query) do
+    where(query, [mr], mr.status in ~w(ACTIVE COMPLETED))
+  end
+
+  defp msp_params, do: %{"type" => "MSP", "is_active" => true}
+
+  defp pharmacy_params, do: %{"type" => "PHARMACY", "is_active" => true}
 
   defp format_date(date, "DAY"), do: Timex.format!(date, "%F", :strftime)
   defp format_date(date, "MONTH"), do: Timex.format!(date, "%Y-%m", :strftime)
