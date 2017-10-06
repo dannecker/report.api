@@ -104,6 +104,10 @@ defmodule Report.Integration.MainStatsTest do
       "declarations_closed" => 1,
       "declarations_active_start" => 0,
       "declarations_active_end" => 2,
+      "medication_requests_created" => 3,
+      "medication_requests_closed" => 1,
+      "medication_requests_active_start" => 0,
+      "medication_requests_active_end" => 2,
       "period_name" => to_string(Date.utc_today),
       "period_type" => "DAY"
     } == main_stats |> List.last
@@ -156,6 +160,10 @@ defmodule Report.Integration.MainStatsTest do
       "declarations_closed" => 1,
       "declarations_active_start" => 0,
       "declarations_active_end" => 2,
+      "medication_requests_created" => 3,
+      "medication_requests_closed" => 1,
+      "medication_requests_active_start" => 0,
+      "medication_requests_active_end" => 2,
       "period_type" => "MONTH",
       "period_name" => Timex.format!(Timex.now(), "%Y-%m", :strftime)
     } == main_stats |> List.last
@@ -208,6 +216,10 @@ defmodule Report.Integration.MainStatsTest do
       "declarations_closed" => 1,
       "declarations_active_start" => 0,
       "declarations_active_end" => 2,
+      "medication_requests_created" => 3,
+      "medication_requests_closed" => 1,
+      "medication_requests_active_start" => 0,
+      "medication_requests_active_end" => 2,
       "period_type" => "YEAR",
       "period_name" => Timex.format!(Timex.now(), "%Y", :strftime)
     } == main_stats |> List.last
@@ -318,6 +330,40 @@ defmodule Report.Integration.MainStatsTest do
     insert(:declaration_status_hstr, declaration_id: declaration2.id, status: "active")
     insert(:declaration_status_hstr, declaration_id: declaration2.id, status: declaration2.status)
     insert(:declaration_status_hstr, declaration_id: declaration3.id, status: declaration3.status)
+    medication_request1 = insert(:medication_request,
+      employee: employee,
+      person_id: person.id,
+      division: division,
+      status: "ACTIVE",
+    )
+    medication_request2 = insert(:medication_request,
+      employee: employee,
+      person_id: person.id,
+      division: division,
+      status: "COMPLETED",
+    )
+    medication_request3 = insert(:medication_request,
+      employee: employee,
+      person_id: person.id,
+      division: division,
+      status: "REJECTED",
+    )
+    insert(:medication_request_status_hstr,
+      medication_request_id: medication_request1.id,
+      status: medication_request1.status
+    )
+    insert(:medication_request_status_hstr,
+      medication_request_id: medication_request2.id,
+      status: "ACTIVE"
+    )
+    insert(:medication_request_status_hstr,
+      medication_request_id: medication_request2.id,
+      status: medication_request2.status
+    )
+    insert(:medication_request_status_hstr,
+      medication_request_id: medication_request3.id,
+      status: medication_request3.status
+    )
     %{
       "region" => region,
       "division" => division,
@@ -327,6 +373,10 @@ defmodule Report.Integration.MainStatsTest do
         declaration1,
         declaration2,
       ],
+      "medication_requests" => [
+        medication_request1,
+        medication_request2,
+      ]
     }
   end
 end

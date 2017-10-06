@@ -3,22 +3,30 @@
   "type": "object",
   "properties": {
     "data": {
-      "type": "object",
+     "type": "object",
       "properties": {
-          "msps": {
-            "type": "number"
-          },
-          "doctors": {
-            "type": "number"
-          },
-          "declarations": {
-            "type": "number"
-          }
+        "declarations": {
+          "type": "number"
+        },
+        "msps": {
+          "type": "number"
+        },
+        "doctors": {
+          "type": "number"
+        },
+        "pharmacies": {
+          "type": "number"
+        },
+        "pharmacists": {
+          "type": "number"
+        }
       },
       "required": [
+        "declarations",
         "msps",
         "doctors",
-        "declarations"
+        "pharmacies",
+        "pharmacists"
       ]
     }
   }

@@ -44,6 +44,15 @@
                     },
                     "doctors": {
                       "type": "number"
+                    },
+                    "pharmacies": {
+                      "type": "number"
+                    },
+                    "pharmacists": {
+                      "type": "number"
+                    },
+                    "medication_requests": {
+                      "type": "number"
                     }
                   },
                   "required": [
@@ -51,7 +60,10 @@
                     "declarations_created",
                     "declarations_closed",
                     "msps",
-                    "doctors"
+                    "doctors",
+                    "pharmacies",
+                    "pharmacists",
+                    "medication_requests"
                   ]
                 },
                 "total": {
@@ -71,6 +83,15 @@
                     },
                     "doctors": {
                       "type": "number"
+                    },
+                    "pharmacies": {
+                      "type": "number"
+                    },
+                    "pharmacists": {
+                      "type": "number"
+                    },
+                    "medication_requests": {
+                      "type": "number"
                     }
                   },
                   "required": [
@@ -78,7 +99,10 @@
                     "declarations_created",
                     "declarations_closed",
                     "msps",
-                    "doctors"
+                    "doctors",
+                    "pharmacies",
+                    "pharmacists",
+                    "medication_requests"
                   ]
                 }
               }

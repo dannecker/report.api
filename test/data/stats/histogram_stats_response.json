@@ -23,6 +23,18 @@
           },
           "declarations_active_end": {
             "type": "number"
+          },
+          "medication_requests_created": {
+            "type": "number"
+          },
+          "medication_requests_closed": {
+            "type": "number"
+          },
+          "medication_requests_active_start": {
+            "type": "number"
+          },
+          "medication_requests_active_end": {
+            "type": "number"
           }
         },
         "required": [
@@ -30,6 +42,10 @@
           "declarations_closed",
           "declarations_active_start",
           "declarations_active_end",
+          "medication_requests_created",
+          "medication_requests_closed",
+          "medication_requests_active_start",
+          "medication_requests_active_end",
           "period_type",
           "period_name"
         ]
