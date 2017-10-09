@@ -31,11 +31,11 @@ defmodule Report.Stats.DivisionStats do
 
     polygon = WKT.encode(
       %Geo.Polygon{coordinates: [[
-        {lefttop_latitude, lefttop_longitude},
-        {lefttop_latitude, rightbottom_longitude},
-        {rightbottom_latitude, rightbottom_longitude},
-        {rightbottom_latitude, lefttop_longitude},
-        {lefttop_latitude, lefttop_longitude}
+        {lefttop_longitude, lefttop_latitude},
+        {rightbottom_longitude, lefttop_latitude},
+        {rightbottom_longitude, rightbottom_latitude},
+        {lefttop_longitude, rightbottom_latitude},
+        {lefttop_longitude, lefttop_latitude}
       ]]}
     )
 
