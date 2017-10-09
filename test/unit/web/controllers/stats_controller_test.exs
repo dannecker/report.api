@@ -111,8 +111,8 @@ defmodule Report.Web.StatsControllerTest do
     assert response(conn, 422)
 
     conn = get conn, stats_path(conn, :divisions_map,
-      lefttop_latitude: "30.1233",
-      lefttop_longitude: "50.32423",
+      lefttop_latitude: "50.32423",
+      lefttop_longitude: "30.1233",
       rightbottom_latitude: "50.32423",
     )
     assert response(conn, 422)
@@ -126,8 +126,8 @@ defmodule Report.Web.StatsControllerTest do
     assert response(conn, 422)
 
     conn = get conn, stats_path(conn, :divisions_map,
-      lefttop_latitude: "30.1233",
-      lefttop_longitude: "50.32423",
+      lefttop_latitude: "50.32423",
+      lefttop_longitude: "30.1233",
       rightbottom_latitude: "50.32423",
       rightbottom_longitude: "50.32423"
     )
@@ -135,8 +135,8 @@ defmodule Report.Web.StatsControllerTest do
 
     conn = get conn, stats_path(conn, :divisions_map,
       type: "invalid",
-      lefttop_latitude: "30.1233",
-      lefttop_longitude: "50.32423",
+      lefttop_latitude: "50.32423",
+      lefttop_longitude: "30.1233",
       rightbottom_latitude: "50.32423",
       rightbottom_longitude: "50.32423"
     )
@@ -144,10 +144,10 @@ defmodule Report.Web.StatsControllerTest do
 
     insert_fixtures()
     conn = get conn, stats_path(conn, :divisions_map,
-      lefttop_latitude: 35,
-      lefttop_longitude: 45,
-      rightbottom_latitude: 25,
-      rightbottom_longitude: 55,
+      lefttop_latitude: 45,
+      lefttop_longitude: 35,
+      rightbottom_latitude: 55,
+      rightbottom_longitude: 25,
       page_size: 3,
     )
     assert map_stats = response(conn, 200)
