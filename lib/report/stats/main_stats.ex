@@ -231,7 +231,10 @@ defmodule Report.Stats.MainStats do
         "stats" => %{
           "declarations" => 0,
           "doctors" => 0,
-          "msps" => 0
+          "msps" => 0,
+          "pharmacies" => 0,
+          "pharmacists" => 0,
+          "medication_requests" => 0,
         }
       }}
     end)
