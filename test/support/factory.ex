@@ -222,16 +222,9 @@ defmodule Report.Factory do
 
   def party_factory do
     %Party{
-      birth_date: ~D[1991-08-19],
-      documents: [],
       first_name: "some first_name",
-      gender: "some gender",
       last_name: "some last_name",
-      phones: [],
       second_name: "some second_name",
-      tax_id: "some tax_id",
-      inserted_by: UUID.generate(),
-      updated_by: UUID.generate()
     }
   end
 
