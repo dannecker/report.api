@@ -39,8 +39,8 @@ defmodule Report.Web.StatsView do
       "type" => division.type,
       "addresses" => division.addresses,
       "coordinates" => %{
-        "latitude" => elem(division.location.coordinates, 0),
-        "longitude" => elem(division.location.coordinates, 1),
+        "latitude" => elem(division.location.coordinates, 1),
+        "longitude" => elem(division.location.coordinates, 0),
       },
       "contacts" => %{
         "email" => division.email,
