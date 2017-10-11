@@ -8,7 +8,7 @@ defmodule Report.RedMSPTerritory do
     field :street_type, :string
     field :street_name, :string
     field :postal_code, :string, length: 5
-    field :buildings, :string, length: 2000
+    field :buildings, :string
     belongs_to :red_msp, Report.RedMSP, type: Ecto.UUID
     timestamps(type: :utc_datetime)
   end
