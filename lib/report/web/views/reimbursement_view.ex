@@ -52,10 +52,7 @@ defmodule Report.Web.ReimbursementView do
           "division" => render_one(division, __MODULE__, "division.json", as: :division),
           "legal_entity" => render_one(legal_entity, __MODULE__, "legal_entity.json", as: :legal_entity),
           "medical_program" => render_one(medical_program, __MODULE__, "medical_program.json", as: :medical_program),
-          "medications" =>
-            Enum.map(details, fn item ->
-              render(__MODULE__, "medication_dispense_details.json", %{details: item, medication: medication})
-            end)
+          "medications" => render_many(details, __MODULE__, "medication_dispense_details.json", as: :details),
         })
 
       %{
@@ -93,7 +90,9 @@ defmodule Report.Web.ReimbursementView do
     Map.take(party, ~w(id first_name last_name second_name)a)
   end
 
-  def render("medication_dispense_details.json", %{details: details, medication: medication}) do
+  def render("medication_dispense_details.json", %{details: details}) do
+    medication = Map.get(details, :medication, %{}) || %{}
+
     medication
     |> Map.take(~w(id code_atc name type manufacturer form container package_qty)a)
     |> Map.put(:dispense_details, Map.take(details, ~w(
