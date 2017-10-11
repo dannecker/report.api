@@ -98,11 +98,105 @@ legal_entity_id | uuid | not null
 
 [parties]
 id | uuid | not null
+last_name | varchar | not null
+first_name | varchar | not null
+second_name | varchar
 
 [party_users]
 id       | uuid | not null
 party_id | uuid | not null
 user_id  | uuid | not null
+
+[medications]
+id | uuid | not null
+name | varchar | not null 
+type | varchar | not null
+manufacturer | jsonb
+code_atc | varchar
+is_active | boolean | not null
+form | varchar | not null
+container | jsonb
+package_qty | number
+package_min_qty | number
+certificate | varchar
+certificate_expired_at | date
+inserted_at | timestamp | not null
+inserted_by | uuid | not null
+updated_at | timestamp | not null
+updated_by | uuid | not null
+
+[medical_programs]
+id | uuid | not null
+name | varchar | not null
+is_active | boolean | not null
+inserted_at | timestamp | not null
+inserted_by | uuid | not null
+updated_at | timestamp | not null
+updated_by | uuid | not null
+
+[medication_requests]
+id | uuid | not null
+request_number | varchar | not null
+verification_code | varchar
+created_at | date | not null
+started_at | date| not null
+ended_at | date| not null
+dispense_valid_from | date| not null
+dispense_valid_to | date| not null
+person_id | uuid | not null
+employee_id | uuid | not null
+division_id | uuid | not null
+medication_id | uuid | not null
+medication_qty | number | not null
+status | varchar | not null
+is_active | boolean | not null
+rejected_at | date
+rejected_by | uuid
+reject_reason | varchar
+medication_request_requests_id | uuid | not null
+medical_program_id | uuid
+inserted_at | timestamp | not null
+inserted_by | uuid | not null
+updated_at | timestamp | not null
+updated_by | uuid | not null
+
+[medication_dispenses]
+id | uuid | not null
+medication_request_id | uuid | not null
+dispensed_at | date | not null
+party_id | uuid | not null
+legal_entity_id | uuid | not null
+division_id | uuid | not null
+medical_program_id | uuid
+payment_id | varchar
+status | varchar | not null
+is_active | boolean | not null
+inserted_at | timestamp | not null
+inserted_by | uuid | not null
+updated_at | timestamp | not null
+updated_by | uuid | not null
+
+[medication_dispense_details]
+id | uuid | not null
+medication_dispense_id | uuid | not null
+medication_id | uuid | not null
+medication_qty | number | not null
+sell_price | number | not null
+sell_amount | number | not null
+discount_amount | number | not null
+reimbursement_amount | number | not null
+
+[medication_dispense_status_hstr]
+id | integer | not null
+medication_dispense_id | uuid | not null
+status | varchar | not null
+inserted_at | timestamp | not null
+
+[medication_requests_status_hstr]
+id | integer | not null
+medication_request_id | uuid | not null
+status | varchar | not null
+inserted_at | timestamp | not null
 
 [regions]
 id | UUID | NOT NULL
@@ -138,14 +232,37 @@ id | UUID | NOT NULL
 street_id | UUID | NOT NULL
 name | VARCHAR(150) | NOT NULL
 
-[billing]
+[billings]
 id | UUID | NOT NULL
-billing_date | date | not null
-declaration_id| uuid | not null
-legal_entity_id | uuid | not null
+billing_date | date 
+declaration_id | uuid 
+legal_entity_id | uuid 
+division_id | uuid 
+mountain_group | boolean
+person_age | integer
+inserted_at | timestamp | not null
+updated_at | timestamp | not null
+compensation_group | string | not null
+decision_id | string | not null
 red_msp_id | uuid | not null
-mountain_group | enum('')
-age_group | enum('')
+is_valid | boolean | not null
+
+[billing_logs]
+id | UUID | NOT NULL
+billing_date | date | NOT NULL
+legal_entity_id | uuid 
+declaration_id| uuid 
+person_id | uuid 
+division_id | uuid 
+message | ARCHAR(255)
+person_age | integer
+inserted_at | timestamp | not null
+
+[report_logs]
+id | UUID | NOT NULL
+type | VARCHAR(255)
+public_url | VARCHAR(255)
+inserted_at | timestamp | not null
 
 [red_msps]
 id | uuid | not null
@@ -178,6 +295,18 @@ medical_service_providers 1--1 legal_entities
 parties 1--? doctors
 declarations 1--* declarations_status_hstr
 
+medication_requests *--1 legal_entities
+medication_requests *--1 divisions
+medication_requests *--1 employees 
+medication_requests *--1 medications
+medication_requests 1--* medication_dispenses
+medication_requests *--1 medication_requests_status_hstr
+medication_dispenses *--1 legal_entities
+medication_dispenses *--1 divisions
+medication_dispenses *--1 employees
+medication_dispenses *--1 medication_dispense_status_hstr
+medication_dispenses 1--* medication_dispense_details
+medication_dispense_details 1--1 medications
 
 
 
@@ -190,6 +319,8 @@ districts 1--+ streets
 streets 1--+ streets_aliases
 
 
-billing 1--* declarations
-billing *--1 legal_entities
+billings 1--* declarations
+billings *--1 legal_entities
+billings *--1 divisions
+billings 1--* red_msps
 red_msps 1--* red_msps_territories
