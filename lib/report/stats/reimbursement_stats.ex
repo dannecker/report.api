@@ -75,10 +75,12 @@ defmodule Report.Stats.ReimbursementStats do
   end
 
   defp filter_by_legal_entity(query, %LegalEntity{id: id, type: "MSP"}) do
-    where(query, [mr, md, e, p_req, le], le.id == ^id)
+    where(query, [mr, md, e, p_req, le], le.id == ^id and le.status == "ACTIVE")
   end
   defp filter_by_legal_entity(query, %LegalEntity{id: id, type: "PHARMACY"}) do
-    where(query, [mr, md, e, p_req, le, d_req, mp_req, m, p, d_dis, le_dis], le_dis.id == ^id)
+    where(query, [mr, md, e, p_req, le, d_req, mp_req, m, p, d_dis, le_dis],
+      le_dis.id == ^id and le_dis.status == "ACTIVE"
+    )
   end
 
   defp join_medication_dispense(query) do
