@@ -75,7 +75,7 @@ defmodule Report.Web.ReimbursementView do
   def render("division.json", %{division: division}) do
     division
     |> Map.take(~w(id name mountain_group)a)
-    |> Map.merge(%{"address" => Enum.find(division.addresses, &(Map.get(&1, "type") == "RESIDENCE"))})
+    |> Map.merge(%{"address" => Enum.find(Map.get(division, :addresses, %{}), &(Map.get(&1, "type") == "RESIDENCE"))})
   end
 
   def render("medication.json", %{medication: medication}) do
