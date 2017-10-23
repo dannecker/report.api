@@ -167,22 +167,28 @@ defmodule Report.Web.ReimbursementControllerTest do
         |> insert()
         |> Repo.preload(:party)
       employee = insert(:employee, party: party, legal_entity: legal_entity)
-      %{medication_id: medication_id} = insert(:medication_dispense_details,
-        medication_dispense_id: medication_dispense_id
-      )
-      insert(:medication, id: medication_id)
+      insert_details(medication_dispense_id)
+      insert_details(medication_dispense_id)
       medication_request = insert(:medication_request, employee: employee)
       %{id: medication_dispense_id} = insert(:medication_dispense,
         medication_request: medication_request,
         legal_entity: legal_entity,
         party: party
       )
-      %{medication_id: medication_id} = insert(:medication_dispense_details,
-        medication_dispense_id: medication_dispense_id
-      )
-      insert(:medication, id: medication_id)
-      Enum.each(1..50, fn _ ->
+      insert_details(medication_dispense_id)
+      insert_details(medication_dispense_id)
+      Enum.each(1..8, fn _ ->
         insert(:medication_request, employee: employee)
+      end)
+      Enum.each(1..3, fn _ ->
+        %{id: medication_dispense_id} = insert(:medication_dispense,
+          medication_request: medication_request,
+          legal_entity: legal_entity,
+          party: party
+        )
+
+        insert_details(medication_dispense_id)
+        insert_details(medication_dispense_id)
       end)
 
       data = Poison.encode!(%{"client_id" => legal_entity.id})
@@ -275,5 +281,12 @@ defmodule Report.Web.ReimbursementControllerTest do
       :ok = NExJsonSchema.Validator.validate(schema, resp)
       assert 1 == length(resp["data"])
     end
+  end
+
+  defp insert_details(medication_dispense_id) do
+    %{medication_id: medication_id} = insert(:medication_dispense_details,
+      medication_dispense_id: medication_dispense_id
+    )
+    insert(:medication, id: medication_id)
   end
 end
