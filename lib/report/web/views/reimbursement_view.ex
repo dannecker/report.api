@@ -97,7 +97,7 @@ defmodule Report.Web.ReimbursementView do
     division = Map.get(medication_dispense, :division, %{})
     legal_entity = Map.get(medication_dispense, :legal_entity, %{})
     medical_program = Map.get(medication_dispense, :medical_program, %{})
-    details = Map.get(medication_dispense, :details, [])
+    details = Map.get(medication_dispense, :details, []) || []
 
     dispense =
       medication_dispense.medication_dispense
