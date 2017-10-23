@@ -2,7 +2,6 @@ defmodule Report.Web.ReimbursementView do
   @moduledoc false
 
   use Report.Web, :view
-  alias Report.Replica.MedicationDispense
 
   def render("index.json", %{stats: stats}) do
     render_many(stats, __MODULE__, "reimbursement.json")
@@ -16,7 +15,7 @@ defmodule Report.Web.ReimbursementView do
     medical_program = reimbursement.medical_program
 
     medication_request =
-      reimbursement
+      reimbursement.medication_request
       |> Map.take(~w(
         id
         created_at
@@ -44,7 +43,7 @@ defmodule Report.Web.ReimbursementView do
         __MODULE__,
         "medication_dispense.json",
         as: :medication_dispense
-      ) || %{}
+      )
 
       Map.merge(%{"medication_request" => medication_request}, medication_dispense)
   end
@@ -92,7 +91,8 @@ defmodule Report.Web.ReimbursementView do
     )a))
   end
 
-  def render("medication_dispense.json", %{medication_dispense: %MedicationDispense{} = medication_dispense}) do
+  def render("medication_dispense.json", %{medication_dispense: %{medication_dispense: nil}}), do: %{}
+  def render("medication_dispense.json", %{medication_dispense: medication_dispense}) do
     party = Map.get(medication_dispense, :party, %{})
     division = Map.get(medication_dispense, :division, %{})
     legal_entity = Map.get(medication_dispense, :legal_entity, %{})
@@ -100,7 +100,7 @@ defmodule Report.Web.ReimbursementView do
     details = Map.get(medication_dispense, :details, [])
 
     dispense =
-      medication_dispense
+      medication_dispense.medication_dispense
       |> Map.take(~w(id dispensed_at status)a)
       |> Map.merge(%{
           "party" => render_one(party, __MODULE__, "party.json", as: :party),
