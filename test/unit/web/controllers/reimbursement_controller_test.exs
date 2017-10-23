@@ -166,11 +166,24 @@ defmodule Report.Web.ReimbursementControllerTest do
         :party_user
         |> insert()
         |> Repo.preload(:party)
-      insert(:employee, party: party, legal_entity: legal_entity)
+      employee = insert(:employee, party: party, legal_entity: legal_entity)
       %{medication_id: medication_id} = insert(:medication_dispense_details,
         medication_dispense_id: medication_dispense_id
       )
       insert(:medication, id: medication_id)
+      medication_request = insert(:medication_request, employee: employee)
+      %{id: medication_dispense_id} = insert(:medication_dispense,
+        medication_request: medication_request,
+        legal_entity: legal_entity,
+        party: party
+      )
+      %{medication_id: medication_id} = insert(:medication_dispense_details,
+        medication_dispense_id: medication_dispense_id
+      )
+      insert(:medication, id: medication_id)
+      Enum.each(1..50, fn _ ->
+        insert(:medication_request, employee: employee)
+      end)
 
       data = Poison.encode!(%{"client_id" => legal_entity.id})
 
@@ -190,7 +203,7 @@ defmodule Report.Web.ReimbursementControllerTest do
 
       resp = json_response(conn, 200)
       :ok = NExJsonSchema.Validator.validate(schema, resp)
-      assert 1 == length(resp["data"])
+      assert 10 == length(resp["data"])
     end
 
     test "get stats by dispense period", %{conn: conn} do

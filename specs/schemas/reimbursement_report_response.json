@@ -509,22 +509,9 @@
                   "first_name"
                 ]
               }
-            },
-            "required": [
-              "id",
-              "dispensed_at",
-              "status",
-              "medications",
-              "medical_program",
-              "legal_entity",
-              "division",
-              "party"
-            ]
+            }
           }
-        },
-        "required": [
-          "medication_request"
-        ]
+        }
       }
     },
     "paging": {
