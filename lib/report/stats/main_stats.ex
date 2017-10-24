@@ -381,9 +381,9 @@ defmodule Report.Stats.MainStats do
     where(query, [mr], mr.status in ~w(ACTIVE COMPLETED))
   end
 
-  defp msp_params, do: %{"type" => "MSP", "is_active" => true}
+  defp msp_params, do: %{"type" => "MSP", "is_active" => true, "status" => "ACTIVE"}
 
-  defp pharmacy_params, do: %{"type" => "PHARMACY", "is_active" => true}
+  defp pharmacy_params, do: %{"type" => "PHARMACY", "is_active" => true, "status" => "ACTIVE"}
 
   defp format_date(date, "DAY"), do: Timex.format!(date, "%F", :strftime)
   defp format_date(date, "MONTH"), do: Timex.format!(date, "%Y-%m", :strftime)
