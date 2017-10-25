@@ -79,22 +79,33 @@ defmodule Report.Reporter do
   defp calcualte_total(billings, 2) do
     b_one = Enum.at(billings, 0)
     b_two = Enum.at(billings, 1)
-    [edrpou, name1, _, age1_1, age2_1, age3_1, age4_1, age5_1] = b_one
-    [_, _, _, age1_2, age2_2, age3_2, age4_2, age5_2]          = b_two
+    [edrpou, name1, _, age1_1, age2_1, age3_1, age4_1, age5_1, _, _, _] = b_one
+    [_, _, _, age1_2, age2_2, age3_2, age4_2, age5_2, _, _, _]          = b_two
     red_list = get_red_list_count(edrpou)
     total_billing = [
       edrpou, name1, "MSP Total", age1_1 + age1_2, age2_1 + age2_2, age3_1 + age3_2, age4_1 + age4_2, age5_1 + age5_2
     ]
-    make_csv_line([b_one, b_two, total_billing], red_list)
+    make_csv_line([Enum.slice(b_one, 0..7), Enum.slice(b_two, 0..7), total_billing], red_list)
   end
 
   defp calcualte_total(billings, 1) do
     billings = List.flatten(billings)
-    [edrpou, name, mountain_group, age1, age2, age3, age4, age5] = billings
+    make_line_for_msp(billings)
+  end
+
+  defp make_line_for_msp([edrpou, name, mountain_group, age1, age2, age3, age4, age5, nil, nil, nil]) do
     red_list = get_red_list_count(edrpou)
     mountain_group = present?(mountain_group)
     temp_billing = [edrpou, name, !mountain_group, 0, 0, 0, 0, 0]
     total_billing = [edrpou, name, "MSP Total", age1, age2, age3, age4, age5]
+    make_csv_line([[edrpou, name, mountain_group, age1, age2, age3, age4, age5], temp_billing, total_billing], red_list)
+  end
+
+  defp make_line_for_msp([nil, nil, nil, 0, 0, 0, 0, 0, edrpou, name, population_count]) do
+    billings = [edrpou, name, true, 0, 0, 0, 0, 0]
+    temp_billing = [edrpou, name, false, 0, 0, 0, 0, 0]
+    total_billing = [edrpou, name, "MSP Total", 0, 0, 0, 0, 0]
+    red_list = [population_count, 0, 0]
     make_csv_line([billings, temp_billing, total_billing], red_list)
   end
 
