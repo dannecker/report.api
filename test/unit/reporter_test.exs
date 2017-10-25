@@ -109,6 +109,16 @@ defmodule Report.ReporterTest do
             population_count: :rand.uniform(10000)
                   }
       })
+      insert(:red_msp_territory, %{
+          settlement_id: address["settlement_id"],
+          street_name: address["street_name"],
+          buildings: address["buildings"],
+          red_msp: %{
+            name: "test", type: "general",
+            edrpou: "30077721",
+            population_count: :rand.uniform(10000)
+                  }
+      })
       Reporter.capitation
       assert length(Repo.all(Report.ReportLog)) == 1
       data =
@@ -116,8 +126,8 @@ defmodule Report.ReporterTest do
         |> File.stream!()
         |> CSV.decode()
         |> Enum.to_list
-      assert length(data) == 19
-      {:ok, [_, _, _, _, _, _, _, _, population_count, green, diff]} = List.last(data)
+      assert length(data) == 22
+      {:ok, [_, _, _, _, _, _, _, _, population_count, green, diff]} = Enum.at(data, 2)
       assert  String.to_integer(diff) == (String.to_integer(population_count) - String.to_integer(green))
     end
 

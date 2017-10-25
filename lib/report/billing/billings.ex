@@ -10,6 +10,7 @@ defmodule Report.Billings do
   alias Report.Replica.LegalEntity
   alias Report.GandalfCaller
   alias Report.RedLists
+  alias Report.RedMSP
   alias Report.MediaStorage
   alias Report.BillingLog
 
@@ -185,9 +186,10 @@ defmodule Report.Billings do
   def get_legal_entities_for_csv(billing_date) do
     from le in LegalEntity,
     full_join: b in Billing, on: le.id == b.legal_entity_id,
+    full_join: rmsp in RedMSP, on: le.edrpou == rmsp.edrpou,
     where: b.billing_date == ^billing_date,
     or_where: is_nil(b.billing_date),
-    group_by: [le.edrpou, b.mountain_group, le.name],
+    group_by: [le.edrpou, b.mountain_group, le.name, rmsp.name, rmsp.edrpou, rmsp.population_count],
     order_by: le.edrpou,
     select: [
       le.edrpou,
@@ -197,7 +199,10 @@ defmodule Report.Billings do
       fragment(~s(sum\(case when person_age>=5 and person_age<18 then 1 else 0 end\) as "6-17")),
       fragment(~s(sum\(case when person_age>17 and person_age<40 then 1 else 0 end\) as "18-39")),
       fragment(~s(sum\(case when person_age>39 and person_age<65 then 1 else 0 end\) as "40-64")),
-      fragment(~s(sum\(case when person_age>64 then 1 else 0 end\) as ">65"))
+      fragment(~s(sum\(case when person_age>64 then 1 else 0 end\) as ">65")),
+      rmsp.edrpou,
+      rmsp.name,
+      rmsp.population_count
     ]
   end
 
