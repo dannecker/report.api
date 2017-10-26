@@ -8,24 +8,45 @@ defmodule Report.Integration.DivisionStatsTest do
   alias Report.Stats.DivisionsMapRequest
   alias Scrivener.Page
 
-  test "get_map_stats/1" do
-    %{"division" => division} = insert_fixtures()
-    params = %{
-      name: division.name,
-      type: DivisionsMapRequest.type(:clinic),
-      lefttop_longitude: 25,
-      lefttop_latitude: 45,
-      rightbottom_longitude: 35,
-      rightbottom_latitude: 55,
-    }
+  describe "get_map_stats/1" do
+    test "search clinics" do
+      %{"division" => division} = insert_fixtures()
+      params = %{
+        name: division.name,
+        type: DivisionsMapRequest.type(:clinic),
+        lefttop_longitude: 25,
+        lefttop_latitude: 45,
+        rightbottom_longitude: 35,
+        rightbottom_latitude: 55,
+      }
 
-    {:ok, %Page{entries: map_stats}} = DivisionStats.get_map_stats(params)
-    assert 1 == Enum.count(map_stats)
+      {:ok, %Page{entries: map_stats}} = DivisionStats.get_map_stats(params)
+      assert 1 == Enum.count(map_stats)
 
-    id = division.id
-    assert [%Division{id: ^id}] = map_stats
+      id = division.id
+      assert [%Division{id: ^id}] = map_stats
 
-    {:ok, %Page{entries: []}} = DivisionStats.get_map_stats(Map.put(params, :page, 2))
+      {:ok, %Page{entries: []}} = DivisionStats.get_map_stats(Map.put(params, :page, 2))
+    end
+
+    test "search drugstores" do
+      insert_fixtures()
+      drugstore = DivisionsMapRequest.type(:drugstore)
+      params = %{
+        type: drugstore,
+        lefttop_longitude: 25,
+        lefttop_latitude: 45,
+        rightbottom_longitude: 35,
+        rightbottom_latitude: 55,
+      }
+
+      {:ok, %Page{entries: map_stats}} = DivisionStats.get_map_stats(params)
+      assert 1 == Enum.count(map_stats)
+
+      assert [%Division{type: ^drugstore}] = map_stats
+
+      {:ok, %Page{entries: []}} = DivisionStats.get_map_stats(Map.put(params, :page, 2))
+    end
   end
 
   defp insert_fixtures do
@@ -40,6 +61,7 @@ defmodule Report.Integration.DivisionStatsTest do
     ]
     division = insert(:division, params)
     insert(:division, Keyword.put(params, :is_active, false))
+    insert(:division, Keyword.put(params, :type, DivisionsMapRequest.type(:drugstore)))
     %{
       "division" => division,
       "legal_entity" => legal_entity,
