@@ -31,6 +31,6 @@ defmodule Report.Stats.DivisionStatsValidator do
     |> validate_number(:lefttop_longitude, geo_format)
     |> validate_number(:rightbottom_latitude, geo_format)
     |> validate_number(:rightbottom_longitude, geo_format)
-    |> validate_inclusion(:type, Enum.map(~w(clinic ambulant fap)a, &DivisionsMapRequest.type/1))
+    |> validate_inclusion(:type, DivisionsMapRequest.types())
   end
 end
