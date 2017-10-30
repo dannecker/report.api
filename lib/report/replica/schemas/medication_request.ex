@@ -16,6 +16,7 @@ defmodule Report.Replica.MedicationRequest do
     field :person_id, Ecto.UUID
     field :employee_id, Ecto.UUID
     field :division_id, Ecto.UUID
+    field :legal_entity_id, Ecto.UUID
     field :medication_id, Ecto.UUID
     field :medication_qty, :float
     field :status, :string
@@ -34,6 +35,7 @@ defmodule Report.Replica.MedicationRequest do
     belongs_to :division, Report.Replica.Division, define_field: false
     belongs_to :medical_program, Report.Replica.MedicalProgram, define_field: false
     belongs_to :medication, Report.Replica.Medication, define_field: false
+    belongs_to :legal_entity, Report.Replica.LegalEntity, define_field: false
 
     timestamps()
   end

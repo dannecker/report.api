@@ -279,6 +279,7 @@ defmodule Report.Factory do
       medication_request_requests_id: UUID.generate(),
       request_number: "",
       medical_program: build(:medical_program),
+      legal_entity_id: UUID.generate(),
       rejected_at: Date.utc_today(),
       rejected_by: UUID.generate(),
     }
