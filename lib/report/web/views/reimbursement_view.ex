@@ -82,7 +82,7 @@ defmodule Report.Web.ReimbursementView do
 
     medication
     |> Map.take(~w(id code_atc name type manufacturer form container package_qty)a)
-    |> Map.put(:dispense_details, Map.take(details, ~w(
+    |> Map.put(:details, Map.take(details, ~w(
       medication_qty
       sell_price
       sell_amount

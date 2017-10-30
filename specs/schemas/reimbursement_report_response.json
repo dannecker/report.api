@@ -328,7 +328,7 @@
                       "type": "number",
                       "description": "qnty medications in the package"
                     },
-                    "dispense_details": {
+                    "details": {
                       "type": "object",
                       "properties": {
                         "medication_qty": {
@@ -369,7 +369,7 @@
                     "form",
                     "container",
                     "package_qty",
-                    "dispense_details"
+                    "details"
                   ],
                   "additionalProperties": false
                 }
