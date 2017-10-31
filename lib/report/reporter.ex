@@ -54,11 +54,18 @@ defmodule Report.Reporter do
 
   def generate_csv do
     header = ["edrpou", "name", "msp type", "0-5", "6-17", "18-39", "40-65", ">65", "initial", "gone green", "diff"]
-
+    billing_or_red_msp =
+      fn x ->
+        if is_nil(Enum.at(x, 0)) do
+          Enum.at(x, 8)
+        else
+          Enum.at(x, 0)
+        end
+      end
     file = File.stream!("/tmp/#{Timex.today}.csv", [:delayed_write, :utf8])
     Repo.transaction(fn ->
       Billings.get_billing_for_capitation
-      |> Stream.chunk_by(fn x -> Enum.at(x, 0) end)
+      |> Stream.chunk_by(&billing_or_red_msp.(&1))
       |> Stream.map(&calcualte_total(&1, length(&1)))
       |> Stream.transform(0, &insert_header(&1, &2, header))
       |> Stream.flat_map(fn x -> x end)
