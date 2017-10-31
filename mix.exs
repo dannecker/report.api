@@ -24,11 +24,7 @@ defmodule Report.Mixfile do
   #
   # Type "mix help compile.app" for more information
   def application do
-    [extra_applications: [:logger, :confex, :runtime_tools, :poison, :logger_json,
-                          :ecto, :postgrex, :cowboy, :scrivener_ecto,
-                          :httpoison, :phoenix,
-                          :multiverse, :eview,
-                          :phoenix_ecto, :jvalid],
+    [extra_applications: [:logger, :runtime_tools],
      mod: {Report, []}]
   end
 
@@ -50,7 +46,7 @@ defmodule Report.Mixfile do
   #
   # Type "mix help deps" for more examples and options
   defp deps do
-    [{:distillery, "~> 1.2"},
+    [{:distillery, "~> 1.4.1"},
      {:confex, "~> 3.2"},
      {:logger_json, "~> 0.5.0"},
      {:poison, "~> 3.1"},
