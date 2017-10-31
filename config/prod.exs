@@ -39,6 +39,8 @@ config :report_api, Report.Scheduler,
     ]
   ]
 
+config :tzdata, :data_dir, "/opt/report_api/priv/elixir_tzdata_data"
+
 # For production, we often load configuration from external
 # sources, such as your system environment. For this reason,
 # you won't find the :http configuration below, but set inside
