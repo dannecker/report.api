@@ -24,7 +24,7 @@ defmodule Report.RedLists do
       from mspt in RedMSPTerritory,
       where: mspt.settlement_id == ^settlement_id,
       where: mspt.street_name == ^street_name,
-      where: ilike(mspt.buildings, ^building),
+      where: ilike(mspt.buildings, ^"%#{building}%"),
       preload: [:red_msp]
 
     Repo.all(query)
