@@ -112,7 +112,7 @@ defmodule Report.Reporter do
     billings = [edrpou, name, true, 0, 0, 0, 0, 0]
     temp_billing = [edrpou, name, false, 0, 0, 0, 0, 0]
     total_billing = [edrpou, name, "MSP Total", 0, 0, 0, 0, 0]
-    red_list = [population_count, 0, 0]
+    red_list = get_red_list_count(edrpou)
     make_csv_line([billings, temp_billing, total_billing], red_list)
   end
 
