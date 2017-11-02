@@ -108,7 +108,7 @@ defmodule Report.Reporter do
     make_csv_line([[edrpou, name, mountain_group, age1, age2, age3, age4, age5], temp_billing, total_billing], red_list)
   end
 
-  defp make_line_for_msp([nil, nil, nil, 0, 0, 0, 0, 0, edrpou, name, population_count]) do
+  defp make_line_for_msp([nil, nil, nil, 0, 0, 0, 0, 0, edrpou, name, _population_count]) do
     billings = [edrpou, name, true, 0, 0, 0, 0, 0]
     temp_billing = [edrpou, name, false, 0, 0, 0, 0, 0]
     total_billing = [edrpou, name, "MSP Total", 0, 0, 0, 0, 0]
@@ -117,8 +117,9 @@ defmodule Report.Reporter do
   end
 
   defp make_csv_line(billings, red_list) do
+    total_line? = fn i -> if is_binary(Enum.at(i, 2)) do red_list else [0, 0, 0] end end
     billings
-    |> Enum.reduce([], fn(b, acc) -> [list_to_map_strings(b) ++ red_list] ++ acc end)
+    |> Enum.reduce([], fn(b, acc) -> [list_to_map_strings(b) ++ total_line?.(b)] ++ acc end)
     |> sort_by_mountain_group
   end
 
