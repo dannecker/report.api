@@ -93,11 +93,12 @@ defmodule Report.Billings do
   defp put_red_msp(billing_chset, person) do
     red_msp_id =
       if RedLists.person_already_found_in_red_lists?(person.id) do
-        %{"settlement_id" => settlement_id, "street" => street_name, "building" => building} =
-        person.addresses
-        |> Enum.filter(fn a -> a["type"] == "REGISTRATION" end)
-        |> List.first
-        find_msp_territory(billing_chset, settlement_id, street_name, building)
+        %{"settlement_id" => settlement_id, "street" => street_name,
+        "building" => building, "street_type" => street_type} =
+          person.addresses
+          |> Enum.filter(fn a -> a["type"] == "REGISTRATION" end)
+          |> List.first
+        find_msp_territory(billing_chset, settlement_id, street_type, street_name, building)
       else
         nil
       end
@@ -115,11 +116,11 @@ defmodule Report.Billings do
   end
   def put_is_valid(changeset, _, false), do: {:ok, changeset}
 
-  defp find_msp_territory(billing_chset, settlement_id, street_name, building) do
-    red_list = RedLists.find_msp_territory(settlement_id, street_name, building)
+  defp find_msp_territory(billing_chset, settlement_id, street_type, street_name, building) do
+    red_list = RedLists.find_msp_territory(settlement_id, street_type, street_name, building)
     case length(red_list) do
       0 ->
-        maybe_one_division_in_settlement(settlement_id)
+        maybe_one_division_in_settlement(settlement_id, street_type, street_name)
       1 ->
         red_list
         |> List.first()
@@ -129,7 +130,7 @@ defmodule Report.Billings do
     end
   end
 
-  defp maybe_one_division_in_settlement(settlement_id) do
+  def maybe_one_division_in_settlement(settlement_id, street_type, street_name) do
     red_list = RedLists.find_msp_territory(settlement_id)
     case length(red_list) do
       0 ->
@@ -139,9 +140,16 @@ defmodule Report.Billings do
         |> List.first()
         |> Map.get(:red_msp_id)
       list_length when list_length > 1 ->
-        red_list
-        |> Enum.find(nil, fn mspt -> mspt.street_name == nil end)
-        |> Map.get(:red_msp_id)
+        maybe_clear_building = Enum.find(red_list, nil, fn mspt ->
+          mspt.street_name == street_name && mspt.street_type == street_type && mspt.buildings == ""
+        end)
+        if maybe_clear_building do
+          Map.get(maybe_clear_building, :red_msp_id)
+        else
+          red_list
+          |> Enum.find(%{}, fn mspt -> mspt.street_name == "" end)
+          |> Map.get(:red_msp_id)
+        end
     end
   end
 

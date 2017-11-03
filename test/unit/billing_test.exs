@@ -97,6 +97,7 @@ defmodule Report.BillingTest do
       address = rand_person.addresses |> Enum.filter(fn i -> i["type"] == "REGISTRATION" end) |> List.first
       rmt = insert(:red_msp_territory, %{
           settlement_id: address["settlement_id"],
+          street_type: address["street_type"],
           street_name: address["street"],
           buildings: address["building"]
       })
@@ -115,6 +116,7 @@ defmodule Report.BillingTest do
       })
       rmt = insert(:red_msp_territory, %{
           settlement_id: rmt.settlement_id,
+          street_type: rmt.street_type,
           street_name: rmt.street_name,
           buildings: rmt.buildings
       })
@@ -129,7 +131,7 @@ defmodule Report.BillingTest do
     end
 
     test "billings matches with red_msps and selects red_msp_territory where street_name is nil", %{rmt: rmt} do
-      rmt |> Ecto.Changeset.change(street_name: nil) |> Repo.update!
+      rmt |> Ecto.Changeset.change(street_name: "") |> Repo.update!
       insert(:red_msp_territory, %{
           settlement_id: rmt.settlement_id,
           street_name: "TEST",
