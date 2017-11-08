@@ -194,7 +194,7 @@ defmodule Report.Billings do
   def get_legal_entities_for_csv(billing_date) do
     from le in LegalEntity,
     full_join: b in Billing, on: le.id == b.legal_entity_id,
-    full_join: rmsp in RedMSP, on: le.edrpou == rmsp.edrpou,
+    full_join: rmsp in RedMSP, on: le.edrpou == rmsp.edrpou and rmsp.is_active,
     where: b.billing_date == ^billing_date,
     or_where: is_nil(b.billing_date),
     group_by: [le.edrpou, b.mountain_group, le.name, rmsp.name, rmsp.edrpou, rmsp.population_count],
