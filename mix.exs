@@ -1,7 +1,7 @@
 defmodule Report.Mixfile do
   use Mix.Project
 
-  @version "0.1.91"
+  @version "0.1.92"
 
   def project do
     [app: :report_api,
