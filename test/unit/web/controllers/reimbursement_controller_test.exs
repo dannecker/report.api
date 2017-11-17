@@ -283,6 +283,54 @@ defmodule Report.Web.ReimbursementControllerTest do
     end
   end
 
+  describe "get csv data" do
+    test "invalid period", %{conn: conn} do
+      conn = get conn, reimbursement_path(conn, :download)
+      assert %{
+        "error" => %{
+          "invalid" => [
+            %{"entry" => "$.date_from_dispense"},
+            %{"entry" => "$.date_to_dispense"}
+          ]
+        }
+      } = json_response(conn, 422)
+    end
+
+    test "dispense input dates are not valid", %{conn: conn} do
+      conn1 = get conn, reimbursement_path(conn, :download, %{
+        "date_from_dispense" => to_string(Date.utc_today()),
+        "date_to_dispense" => to_string(Date.add(Date.utc_today(), -1))
+      })
+      assert %{"error" => %{"invalid" => [%{"entry" => "$.date_from_dispense"}]}} = json_response(conn1, 422)
+    end
+
+    test "get stats by dispense period", %{conn: conn} do
+      %{id: medication_dispense_id, medication_request: medication_request} = insert(:medication_dispense)
+      legal_entity = insert(:legal_entity, id: medication_request.legal_entity_id)
+      insert(:employee, legal_entity: legal_entity)
+      %{medication_id: medication_id} = insert(:medication_dispense_details,
+        medication_dispense_id: medication_dispense_id
+      )
+      insert(:medication, id: medication_id)
+      %{medication_id: medication_id} = insert(:medication_dispense_details,
+        medication_dispense_id: medication_dispense_id
+      )
+      insert(:medication, id: medication_id)
+
+      insert(:innm_dosage_ingredient, parent_id: medication_request.medication_id)
+      insert(:innm_dosage_ingredient, parent_id: medication_request.medication_id, is_primary: false)
+
+      conn = get conn, reimbursement_path(conn, :download, %{
+        "date_from_dispense" => to_string(Date.add(Date.utc_today(), -2)),
+        "date_to_dispense" => to_string(Date.utc_today())
+      })
+      assert resp = response(conn, 200)
+      assert response_content_type(conn, :csv) =~ "charset=utf-8"
+      result = resp |> String.split("\r\n") |> CSV.decode!(headers: false) |> Enum.take(3)
+      assert 3 == length(result)
+    end
+  end
+
   defp insert_details(medication_dispense_id) do
     %{medication_id: medication_id} = insert(:medication_dispense_details,
       medication_dispense_id: medication_dispense_id

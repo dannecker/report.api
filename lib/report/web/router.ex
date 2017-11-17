@@ -47,6 +47,7 @@ defmodule Report.Web.Router do
     get "/page", PageController, :index
 
     get "/reimbursement_report", ReimbursementController, :index
+    get "/reimbursement_report_download", ReimbursementController, :download
   end
 
   defp handle_errors(%Plug.Conn{status: 500} = conn, %{kind: kind, reason: reason, stack: stacktrace}) do
