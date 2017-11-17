@@ -48,7 +48,6 @@ defmodule Report.Mixfile do
   defp deps do
     [{:distillery, "~> 1.4.1"},
      {:confex, "~> 3.2"},
-     {:logger_json, "~> 0.5.0"},
      {:poison, "~> 3.1"},
      {:ecto, "~> 2.1"},
      {:postgrex, "~> 0.13.2"},

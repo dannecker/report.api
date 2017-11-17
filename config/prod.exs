@@ -64,8 +64,6 @@ config :report_api, Report.Web.Endpoint,
 # Do not log passwords, card data and tokens
 config :phoenix, :filter_parameters, ["password", "secret", "token", "password_confirmation", "card", "pan", "cvv"]
 
-config :logger,
-  backends: [LoggerJSON]
 # ## SSL Support
 #
 # To get SSL working, you will need to add the `https` key
