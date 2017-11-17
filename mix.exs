@@ -66,6 +66,8 @@ defmodule Report.Mixfile do
      {:jvalid, "~> 0.6.0"},
      {:scrivener_ecto, "~> 1.0"},
      {:flow, "~> 0.12"},
+     {:plug_logger_json, "~> 0.5"},
+     {:ecto_logger_json, "~> 0.1"},
      {:faker, "~> 0.8", only: [:test]},
      {:ex_machina, "~> 2.0", only: :test},
      {:benchfella, ">= 0.3.4", only: [:dev, :test]},
