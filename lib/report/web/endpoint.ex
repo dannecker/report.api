@@ -12,7 +12,7 @@ defmodule Report.Web.Endpoint do
 
   plug Plug.RequestId
   plug EView.Plugs.Idempotency
-  plug Plug.Logger
+  plug Plug.LoggerJSON, log: Logger.level
 
   plug EView
 

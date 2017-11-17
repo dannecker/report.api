@@ -36,7 +36,8 @@ config :report_api, Report.Repo,
   port: {:system, :integer, "DB_PORT", 5432},
   ownership_timeout: :infinity,
   pool_size: 20,
-  types: Report.PostgresTypes
+  types: Report.PostgresTypes,
+  loggers: [{Ecto.LoggerJSON, :log, [:info]}]
 # This configuration file is loaded before any dependency and
 # is restricted to this project.
 
@@ -61,15 +62,7 @@ config :report_api,
 config :ssl, protocol_version: :"tlsv1.2"
 
 # Configures Elixir's Logger
-config :logger, :console,
-  format: "$time $metadata[$level] $message\n",
-  metadata: [:request_id]
-
-# Configure JSON Logger back-end
-config :logger_json, :backend,
-  load_from_system_env: true,
-  json_encoder: Poison,
-  metadata: :all
+config :logger, :console, format: "$message\n", level: :info
 
 config :report_api, Report.MediaStorage,
   endpoint: {:system, "MEDIA_STORAGE_ENDPOINT", "http://api-svc.ael"},
