@@ -21,6 +21,8 @@ defmodule Report.Factory do
   alias Report.ReportLog
   alias Report.RedMSP
   alias Report.RedMSPTerritory
+  alias Report.Replica.INNM
+  alias Report.Replica.INNMDosageIngredient
   alias Ecto.UUID
 
   def declaration_factory do
@@ -320,6 +322,24 @@ defmodule Report.Factory do
       medication_dispense_id: UUID.generate(),
       sell_amount: 5,
       discount_amount: 10
+    }
+  end
+
+  def innm_factory do
+    %INNM{
+      name: "test",
+      name_original: "test",
+      inserted_by: UUID.generate(),
+      updated_by: UUID.generate(),
+    }
+  end
+
+  def innm_dosage_ingredient_factory do
+    %INNMDosageIngredient{
+      dosage: %{},
+      is_primary: true,
+      parent_id: UUID.generate(),
+      innm: build(:innm)
     }
   end
 end

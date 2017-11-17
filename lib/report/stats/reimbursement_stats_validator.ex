@@ -5,6 +5,7 @@ defmodule Report.Stats.ReimbursementStatsValidator do
   import Ecto.Query
   alias Report.Repo
   alias Report.Stats.ReimbursementRequest
+  alias Report.Stats.ReimbursementCSVRequest
   alias Report.Replica.PartyUser
   alias Report.Replica.Party
   alias Report.Replica.Employee
@@ -36,7 +37,24 @@ defmodule Report.Stats.ReimbursementStatsValidator do
       {changeset(%ReimbursementRequest{}, params), legal_entity}
     end
   end
+  def validate(params) do
+    changeset(%ReimbursementCSVRequest{}, params)
+  end
 
+  def changeset(%ReimbursementCSVRequest{} = reimbursement_csv_request, params) do
+    fields = ~w(date_from_dispense date_to_dispense)a
+    changeset =
+      reimbursement_csv_request
+      |> cast(params, fields)
+      |> validate_required(fields)
+
+    with :ok <- do_validate_period(changeset, :date_from_dispense, :date_to_dispense) do
+      changeset
+    else
+      :error ->
+        add_error(changeset, :date_from_dispense, "Input dates are not valid")
+    end
+  end
   def changeset(%ReimbursementRequest{} = reimbursement_request, params) do
     dispense = Period.changeset(%Period{}, %{
       "from" => Map.get(params, "date_from_dispense"),
@@ -91,10 +109,10 @@ defmodule Report.Stats.ReimbursementStatsValidator do
     end
   end
 
-  defp do_validate_period(%Ecto.Changeset{changes: changes}) when changes == %{}, do: :ok
-  defp do_validate_period(field_changeset) do
-    from = get_change(field_changeset, :from)
-    to = get_change(field_changeset, :to)
+  defp do_validate_period(%Ecto.Changeset{changes: changes}, _, _) when changes == %{}, do: :ok
+  defp do_validate_period(field_changeset, field_from \\ :from, field_to \\ :to) do
+    from = get_change(field_changeset, field_from)
+    to = get_change(field_changeset, field_to)
     with true <- !is_nil(from) && !is_nil(to),
          true <- Date.compare(from, to) != :gt
     do
