@@ -7,11 +7,40 @@ defmodule Report.Stats.ReimbursementStatsCSV do
   import Report.Stats.ReimbursementStatsValidator, only: [validate: 1]
   import Ecto.Query
 
+  @headers [
+    pharmacy_name: "Назва суб’єкту господарювання (аптека)",
+    pharmacy_edrpou: "Код ЄДРПОУ суб'єкту господарювання (аптека)",
+    msp_name: "Назва закладу охорони здоров’я",
+    msp_edrpou: "Код ЄДРПОУ закладу охорони здоров’я",
+    doctor_name: "Лікар, що виписав рецепт (ПІБ)",
+    doctor_id: "Лікар, що виписав рецепт (ID)",
+    request_number: "№ Номер рецепта",
+    created_at: "Дата створення рецепта",
+    dispensed_at: "Дата відпуску рецепта",
+    innm_name: "Міжнародна непатентована назва лікарського засобу (словник реєстру)",
+    innm_dosage_name: "Лікарська форма",
+    medication_name: "Торгова назва лікарського засобу",
+    form: "Форма випуску (словник реєстру)",
+    package_qty: "Кількість одиниць лікарської форми відповідної дози в упаковці, од.",
+    medication_qty: "Кількість відпущених упаковок, упак",
+    sell_amount: "Фактична роздрібна ціна реалізації упаковки, грн",
+    reimbursement_amount: "Розмір відшкодування вартості лікарського засобу за упаковку, грн",
+    discount_amount: "Сума відшкодування, грн",
+    sell_price: "Сума доплати за упаковку ЛЗ, грн",
+  ]
+
   def get_stats(params) do
     with %Ecto.Changeset{valid?: true, changes: changes} <- validate(params),
-         query <- get_data_query(changes)
+         query <- get_data_query(changes),
+         csv_content <- get_data(query),
+         rows <- csv_content |> CSV.encode(headers: Keyword.keys(@headers)) |> Enum.to_list,
+         [headers] <- [Keyword.values(@headers)] |> CSV.encode(headers: false) |> Enum.to_list
     do
-      {:ok, get_data(query)}
+      rows = case rows do
+        [_h | t] -> t
+        _ -> []
+      end
+      {:ok, [headers | rows]}
     end
   end
 
