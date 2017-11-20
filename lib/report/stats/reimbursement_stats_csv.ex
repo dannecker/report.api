@@ -26,7 +26,7 @@ defmodule Report.Stats.ReimbursementStatsCSV do
     sell_amount: "Фактична роздрібна ціна реалізації упаковки, грн",
     reimbursement_amount: "Розмір відшкодування вартості лікарського засобу за упаковку, грн",
     discount_amount: "Сума відшкодування, грн",
-    sell_price: "Сума доплати за упаковку ЛЗ, грн",
+    sell_price: "Фактична роздрібна ціна за одиницю, грн",
   ]
 
   def get_stats(params) do
