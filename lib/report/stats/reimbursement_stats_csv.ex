@@ -46,7 +46,9 @@ defmodule Report.Stats.ReimbursementStatsCSV do
 
   defp get_data_query(%{date_from_dispense: from, date_to_dispense: to}) do
     MedicationRequest
-    |> join(:left, [mr], md in assoc(mr, :medication_dispense), mr.id == md.medication_request_id)
+    |> join(:left, [mr], md in assoc(mr, :medication_dispense),
+      mr.id == md.medication_request_id and md.status == "PROCESSED"
+    )
     |> where([mr, md], fragment("? BETWEEN ? AND ?", md.dispensed_at, ^from, ^to))
     |> join(:left, [mr, md], m_req in assoc(mr, :medication))
     |> join(:left, [mr, md], e_req in assoc(mr, :employee))

@@ -305,7 +305,9 @@ defmodule Report.Web.ReimbursementControllerTest do
     end
 
     test "get stats by dispense period", %{conn: conn} do
-      %{id: medication_dispense_id, medication_request: medication_request} = insert(:medication_dispense)
+      %{id: medication_dispense_id, medication_request: medication_request} = insert(:medication_dispense,
+        status: "PROCESSED"
+      )
       legal_entity = insert(:legal_entity, id: medication_request.legal_entity_id)
       insert(:employee, legal_entity: legal_entity)
       %{medication_id: medication_id} = insert(:medication_dispense_details,
