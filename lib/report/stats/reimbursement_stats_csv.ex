@@ -22,7 +22,7 @@ defmodule Report.Stats.ReimbursementStatsCSV do
     medication_name: "Торгова назва лікарського засобу",
     form: "Форма випуску (словник реєстру)",
     package_qty: "Кількість одиниць лікарської форми відповідної дози в упаковці, од.",
-    medication_qty: "Кількість відпущених упаковок, упак",
+    medication_qty: "Кількість відпущених ліків, одиниць",
     sell_amount: "Фактична роздрібна ціна реалізації упаковки, грн",
     reimbursement_amount: "Розмір відшкодування вартості лікарського засобу за упаковку, грн",
     discount_amount: "Сума відшкодування, грн",
@@ -47,9 +47,10 @@ defmodule Report.Stats.ReimbursementStatsCSV do
   defp get_data_query(%{date_from_dispense: from, date_to_dispense: to}) do
     MedicationRequest
     |> join(:left, [mr], md in assoc(mr, :medication_dispense),
-      mr.id == md.medication_request_id and md.status == "PROCESSED"
+      mr.id == md.medication_request_id and md.status == "PROCESSED" and md.is_active
     )
     |> where([mr, md], fragment("? BETWEEN ? AND ?", md.dispensed_at, ^from, ^to))
+    |> where([mr], mr.is_active)
     |> join(:left, [mr, md], m_req in assoc(mr, :medication))
     |> join(:left, [mr, md], e_req in assoc(mr, :employee))
     |> join(:left, [mr, md, m_req, e_req], p_req in assoc(e_req, :party))
